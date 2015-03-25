@@ -17,6 +17,16 @@
         bootstrap:bb_icon_left="fa-globe"
         bootstrap:bb_type="primary"
         android:id="@+id/hello_btn"
-        android:text="@string/hello_world"
-    />
+        android:text="@string/hello_world"/>
+        <!--android:onClick="buttonPressed"-->
+
+
+    <Button
+        android:layout_width="400dp"
+        android:layout_height="400dp"
+        android:background="@drawable/round_button"
+        android:gravity="center_vertical|center_horizontal"
+        android:text="hello"
+        android:textColor="#fff"/>
+
 </RelativeLayout>
