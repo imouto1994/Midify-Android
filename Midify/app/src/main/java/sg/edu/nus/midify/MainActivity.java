@@ -7,10 +7,7 @@ import android.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import com.facebook.Session;
 import com.facebook.SessionState;
@@ -21,10 +18,8 @@ import sg.edu.nus.helper.SlidingTabLayout;
 public class MainActivity extends ActionBarActivity {
 
     private static final int LOGIN_FRAGMENT_INDEX = 0;
-    private static final int HOME_FRAGMENT_INDEX = 1;
     private static final int FRAGMENT_COUNT = 1;
 
-    private Toolbar toolbar;
     private Fragment[] fragments = new Fragment[FRAGMENT_COUNT];
     private boolean isResumed = false;
     private UiLifecycleHelper uiHelper;
@@ -39,12 +34,6 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // Toolbar initialization
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-        }
 
         // Initialize Facebook UIHelper
         uiHelper = new UiLifecycleHelper(this, callback);
@@ -70,29 +59,13 @@ public class MainActivity extends ActionBarActivity {
         // Center the tabs in the layout
         slidingTabLayout.setDistributeEvenly(true);
         slidingTabLayout.setViewPager(viewPager);
-    }
+        slidingTabLayout.setCustomTabColorizer(new SlidingTabLayout.TabColorizer(){
 
-    /** Action Bar **/
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+            @Override
+            public int getIndicatorColor(int position) {
+                return getResources().getColor(R.color.color_primary);
+            }
+        });
     }
 
     @Override
@@ -139,11 +112,9 @@ public class MainActivity extends ActionBarActivity {
 
         if (session != null && session.isOpened()) {
             // if the session is already open, try to show the selection fragment
-            getSupportActionBar().show();
         } else {
             // otherwise present the splash screen and ask the user to login, unless the user explicitly skipped.
             showFragment(LOGIN_FRAGMENT_INDEX, false);
-            getSupportActionBar().hide();
         }
     }
 
