@@ -1,4 +1,4 @@
-package sg.edu.nus.midify;
+package sg.edu.nus.midify.main;
 
 import android.app.Fragment;
 import android.os.Bundle;
@@ -9,6 +9,8 @@ import com.facebook.widget.LoginButton;
 
 import java.util.Arrays;
 import java.util.List;
+
+import sg.edu.nus.midify.R;
 
 public class LoginFragment extends Fragment {
 

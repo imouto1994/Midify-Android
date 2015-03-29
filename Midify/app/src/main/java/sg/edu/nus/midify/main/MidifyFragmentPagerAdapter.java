@@ -1,4 +1,4 @@
-package sg.edu.nus.midify;
+package sg.edu.nus.midify.main;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;
