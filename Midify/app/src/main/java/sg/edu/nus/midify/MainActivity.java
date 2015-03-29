@@ -9,8 +9,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import com.facebook.Session;
 import com.facebook.SessionState;
@@ -21,7 +19,6 @@ import sg.edu.nus.helper.SlidingTabLayout;
 public class MainActivity extends ActionBarActivity {
 
     private static final int LOGIN_FRAGMENT_INDEX = 0;
-    private static final int HOME_FRAGMENT_INDEX = 1;
     private static final int FRAGMENT_COUNT = 1;
 
     private Toolbar toolbar;
@@ -40,7 +37,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Toolbar initialization
+        // Initialize toolbar
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
@@ -70,29 +67,13 @@ public class MainActivity extends ActionBarActivity {
         // Center the tabs in the layout
         slidingTabLayout.setDistributeEvenly(true);
         slidingTabLayout.setViewPager(viewPager);
-    }
+        slidingTabLayout.setCustomTabColorizer(new SlidingTabLayout.TabColorizer(){
 
-    /** Action Bar **/
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+            @Override
+            public int getIndicatorColor(int position) {
+                return getResources().getColor(R.color.tabsScrollColor);
+            }
+        });
     }
 
     @Override
@@ -142,8 +123,8 @@ public class MainActivity extends ActionBarActivity {
             getSupportActionBar().show();
         } else {
             // otherwise present the splash screen and ask the user to login, unless the user explicitly skipped.
-            showFragment(LOGIN_FRAGMENT_INDEX, false);
             getSupportActionBar().hide();
+            showFragment(LOGIN_FRAGMENT_INDEX, false);
         }
     }
 
