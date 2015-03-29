@@ -3,23 +3,30 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
-    <!-- No Toolbar
-        <include layout="@layout/toolbar" />
-    -->
+
+    <!-- Navigation Bar -->
+    <include layout="@layout/toolbar" />
+
+    <!-- Overlay Login Fragment -->
     <fragment android:name="sg.edu.nus.midify.LoginFragment"
         android:id="@+id/login_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <!-- Sliding Tab Layout -->
     <sg.edu.nus.helper.SlidingTabLayout
         android:id="@+id/sliding_tabs"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:elevation="2dp"
+        android:background="@color/ColorPrimary" />
 
+    <!-- View Pager Displaying Tab Fragment -->
     <android.support.v4.view.ViewPager
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="0px"
         android:layout_weight="1"
         android:background="@android:color/white"/>
+
 </LinearLayout>

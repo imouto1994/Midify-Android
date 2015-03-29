@@ -7,6 +7,7 @@ import android.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
 import com.facebook.Session;
@@ -20,6 +21,7 @@ public class MainActivity extends ActionBarActivity {
     private static final int LOGIN_FRAGMENT_INDEX = 0;
     private static final int FRAGMENT_COUNT = 1;
 
+    private Toolbar toolbar;
     private Fragment[] fragments = new Fragment[FRAGMENT_COUNT];
     private boolean isResumed = false;
     private UiLifecycleHelper uiHelper;
@@ -34,6 +36,12 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Initialize toolbar
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+        }
 
         // Initialize Facebook UIHelper
         uiHelper = new UiLifecycleHelper(this, callback);
@@ -63,7 +71,7 @@ public class MainActivity extends ActionBarActivity {
 
             @Override
             public int getIndicatorColor(int position) {
-                return getResources().getColor(R.color.color_primary);
+                return getResources().getColor(R.color.tabsScrollColor);
             }
         });
     }
@@ -112,8 +120,10 @@ public class MainActivity extends ActionBarActivity {
 
         if (session != null && session.isOpened()) {
             // if the session is already open, try to show the selection fragment
+            getSupportActionBar().show();
         } else {
             // otherwise present the splash screen and ask the user to login, unless the user explicitly skipped.
+            getSupportActionBar().hide();
             showFragment(LOGIN_FRAGMENT_INDEX, false);
         }
     }

@@ -7,7 +7,7 @@ import android.support.v4.app.FragmentPagerAdapter;;
 
 public class MidifyFragmentPagerAdapter extends FragmentPagerAdapter {
     final int PAGE_COUNT = 2;
-    private String tabTitles[] = new String[] { "News Feed", "MIDI"};
+    private String tabTitles[] = new String[] { "Home", "Midi"};
     private Context context;
 
     public MidifyFragmentPagerAdapter(FragmentManager fm, Context context) {
