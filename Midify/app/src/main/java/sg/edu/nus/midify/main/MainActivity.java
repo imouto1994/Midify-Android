@@ -1,4 +1,4 @@
-package sg.edu.nus.midify;
+package sg.edu.nus.midify.main;
 
 import android.app.Fragment;
 import android.content.Intent;
@@ -9,12 +9,15 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
 
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import sg.edu.nus.helper.Constant;
 import sg.edu.nus.helper.SlidingTabLayout;
+import sg.edu.nus.midify.R;
+import sg.edu.nus.midify.record.RecordActivity;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -71,7 +74,7 @@ public class MainActivity extends ActionBarActivity {
 
             @Override
             public int getIndicatorColor(int position) {
-                return getResources().getColor(R.color.tabsScrollColor);
+                return getResources().getColor(R.color.White);
             }
         });
     }
@@ -128,6 +131,10 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    public void onMidifyButtonClicked(View view) {
+        Intent intent = new Intent(this, RecordActivity.class);
+        startActivity(intent);
+    }
 
     // Handler when state of session has changed
     private void onSessionStateChange(Session session, SessionState state, Exception exception) {

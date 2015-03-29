@@ -1,32 +1,53 @@
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent" >
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
 
-    <!-- Navigation Bar -->
-    <include layout="@layout/toolbar" />
+        <!-- Navigation Bar -->
+        <include layout="@layout/toolbar" />
+
+        <!-- Sliding Tab Layout -->
+        <sg.edu.nus.helper.SlidingTabLayout
+            android:id="@+id/sliding_tabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:elevation="2dp"
+            android:background="@color/ColorPrimary" />
+
+        <!-- View Pager Displaying Tab Fragment -->
+        <android.support.v4.view.ViewPager
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            android:background="@android:color/white"/>
+
+    </LinearLayout>
+
+    <!-- Overlay Floating Action Button -->
+    <com.melnykov.fab.FloatingActionButton
+        android:id="@+id/midify_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        fab:fab_colorNormal="@color/ColorPrimary"
+        fab:fab_colorPressed="@color/ColorPrimaryDark"
+        fab:fab_colorRipple="@color/White"
+        android:onClick="onMidifyButtonClicked"
+        />
 
     <!-- Overlay Login Fragment -->
-    <fragment android:name="sg.edu.nus.midify.LoginFragment"
+    <fragment android:name="sg.edu.nus.midify.main.LoginFragment"
         android:id="@+id/login_fragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <!-- Sliding Tab Layout -->
-    <sg.edu.nus.helper.SlidingTabLayout
-        android:id="@+id/sliding_tabs"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:elevation="2dp"
-        android:background="@color/ColorPrimary" />
-
-    <!-- View Pager Displaying Tab Fragment -->
-    <android.support.v4.view.ViewPager
-        android:id="@+id/view_pager"
-        android:layout_width="match_parent"
-        android:layout_height="0px"
-        android:layout_weight="1"
-        android:background="@android:color/white"/>
-
-</LinearLayout>
+        android:layout_height="match_parent"
+        tools:layout="@layout/toolbar" />
+</FrameLayout>
