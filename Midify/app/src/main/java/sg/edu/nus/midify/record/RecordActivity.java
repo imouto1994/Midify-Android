@@ -1,41 +1,77 @@
 package sg.edu.nus.midify.record;
 
-import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.View;
 
 import sg.edu.nus.midify.R;
 
 
-public class RecordActivity extends ActionBarActivity {
+public class RecordActivity extends Activity implements InitTaskDelegate, RecordTaskDelegate, ConvertTaskDelegate {
+
+    private Recorder recorderProcess;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
+
+        InitTask initTask = new InitTask(this);
+        initTask.execute();
+    }
+
+    public void onRecordButtonClick (View view) {
+
     }
 
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_record, menu);
-        return true;
+    public Context getContext() {
+        return getApplicationContext();
+    }
+
+    //=============================================================================================
+    // INIT TASK DELEGATE
+    //=============================================================================================
+    @Override
+    public void loadNativeLibs() {
+
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    public void initializeConverters() {
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+    }
 
-        return super.onOptionsItemSelected(item);
+    //=============================================================================================
+    // RECORD TASK DELEGATE
+    //=============================================================================================
+    @Override
+    public void setRecorder(Recorder recorder) {
+
+    }
+
+    @Override
+    public void convertPCMToMidi() {
+
+    }
+
+    //=============================================================================================
+    // CONVERT TASK DELEGATE
+    //=============================================================================================
+    @Override
+    public void convertPcmToWav() {
+
+    }
+
+    @Override
+    public void convertWavToMidi() {
+
+    }
+
+    @Override
+    public void populateMidiNotes() {
+
     }
 }
