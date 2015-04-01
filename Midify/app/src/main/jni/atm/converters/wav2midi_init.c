@@ -114,7 +114,7 @@ void wav2midi_init(JNIEnv* env, jobject thiz) {
 
 
     debug("Read Java object Notes.\n");
-    Note = (*env)->FindClass(env, "com.atm.android.atm.midi.Note");
+    Note = (*env)->FindClass(env, "sg/edu/nus/midify/record/Note");
     if (Note == NULL) {
         debug("Could not find Note class.\n");
         return ;

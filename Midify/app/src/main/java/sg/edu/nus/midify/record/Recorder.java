@@ -76,8 +76,10 @@ public class Recorder implements Runnable {
             fileName.delete();
         }
         try {
+            fileName.getParentFile().mkdirs();
             fileName.createNewFile();
         } catch (IOException e) {
+            e.printStackTrace();
             throw new IllegalStateException("Cannot create file: " + fileName.toString());
         }
         try {
@@ -125,10 +127,8 @@ public class Recorder implements Runnable {
             } else if (bufferRead == AudioRecord.ERROR_BAD_VALUE) {
                 throw new IllegalStateException(
                         "read() returned AudioRecord.ERROR_BAD_VALUE");
-            } else if (bufferRead == AudioRecord.ERROR_INVALID_OPERATION) {
-                throw new IllegalStateException(
-                        "read() returned AudioRecord.ERROR_INVALID_OPERATION");
             }
+
             try {
                 for (int idxBuffer = 0; idxBuffer < bufferRead; ++idxBuffer) {
                     dataOutputStreamInstance.writeShort(tempBuffer[idxBuffer]);

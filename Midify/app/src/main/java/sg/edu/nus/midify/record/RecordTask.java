@@ -22,18 +22,18 @@ public class RecordTask extends AsyncTask<Void, Void, Void> {
         this.delegate.setRecorder(recorderInstance);
 
         Thread th = new Thread(recorderInstance);
-        recorderInstance.setFileName(new File(Constant.BASE_FILE_DIR + "/" + Constant.DEFAULT_PCM_FILE_NAME));
+        recorderInstance.setFileName(new File(Constant.DEFAULT_PCM_FILE_NAME));
         th.start();
         recorderInstance.setRecording(true);
 
         while (recorderInstance.isRecording()) {
             try {
-                Thread.sleep(500);
+                Thread.sleep(250);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        recorderInstance.setRecording(false);
+
         try {
             th.join();
         } catch (InterruptedException e) {
@@ -45,7 +45,7 @@ public class RecordTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPostExecute(Void test) {
-        Toast.makeText(this.delegate.getContext(), "Finish recording", Toast.LENGTH_SHORT);
+        Toast.makeText(this.delegate.getContext(), "Finish recording", Toast.LENGTH_SHORT).show();
         this.delegate.convertPCMToMidi();
     }
 }
