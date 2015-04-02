@@ -170,5 +170,13 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
     @Override
     public void populateMidiNotes() {
         this.midiNotes = wavToMidiConverter.getNotes();
+        for (int i = 0; i < midiNotes.size(); i++) {
+            Note note = midiNotes.get(i);
+            if (note != null) {
+                System.out.println("Note: " + note.note + " Velocity: " + note.vel + " Time: " + note.time);
+            } else {
+                midiNotes.remove(i--);
+            }
+        }
     }
 }

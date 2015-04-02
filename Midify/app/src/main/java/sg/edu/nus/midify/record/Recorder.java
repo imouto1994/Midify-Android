@@ -140,8 +140,8 @@ public class Recorder implements Runnable {
         }
         recordInstance.stop();
 
-        // Close resources…
-        recordInstance.stop();
+        // Release resources…
+        recordInstance.release();
         try {
             bufferedStreamInstance.close();
         } catch (IOException e) {

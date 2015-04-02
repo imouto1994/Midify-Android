@@ -1,6 +1,7 @@
 package sg.edu.nus.midify.record;
 
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 public class ConvertTask extends AsyncTask<Void, Void, Void> {
 
@@ -18,14 +19,15 @@ public class ConvertTask extends AsyncTask<Void, Void, Void> {
         // Converting WAV to MIDI
         this.delegate.convertWavToMidi();
 
-        //Populating Midi Notes
-        this.delegate.populateMidiNotes();
-
         return null;
     }
 
     @Override
     protected void onPostExecute(Void test) {
-
+        //Populating Midi Notes
+        Toast.makeText(delegate.getContext(),
+                "Successfully converting to MIDI notes", Toast.LENGTH_SHORT).show();
+        System.out.println("Start populating...");
+        this.delegate.populateMidiNotes();
     }
 }
