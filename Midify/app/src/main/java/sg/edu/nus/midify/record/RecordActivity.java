@@ -73,7 +73,7 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
     @Override
     public void loadNativeLibs() {
         try {
-            System.load("libatm.so");
+            System.loadLibrary("atm");
         } catch (Exception ex) {
             Log.e(Constant.JNI_TAG, "Failed to load native library: " + ex);
         }
