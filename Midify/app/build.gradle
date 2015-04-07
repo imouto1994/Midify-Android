@@ -28,6 +28,30 @@ android {
         }
     }
 
+    productFlavors {
+        x86 {
+            ndk {
+                abiFilter "x86"
+            }
+        }
+        mips {
+            ndk {
+                abiFilter "mips"
+            }
+        }
+        armv7 {
+            ndk {
+                abiFilter "armeabi-v7a"
+            }
+        }
+        arm {
+            ndk {
+                abiFilter "armeabi"
+            }
+        }
+        fat
+    }
+
     // Build Native Code
     task buildNative(type: Exec, description: 'Compile JNI source via NDK') {
         def ndkDir = android.plugin.ndkFolder
