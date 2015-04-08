@@ -1,8 +1,7 @@
 package sg.edu.nus.midify.main;
 
-
+import android.app.Fragment;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,16 +9,18 @@ import android.widget.TextView;
 
 import sg.edu.nus.midify.R;
 
-
-public class PageFragment extends Fragment {
+/**
+ * Created by Youn on 8/4/15.
+ */
+public class MidiFragment extends Fragment {
     public static final String ARG_PAGE = "ARG_PAGE";
 
     private int mPage;
 
-    public static PageFragment newInstance(int page) {
+    public static ActivityFragment newInstance(int page) {
         Bundle args = new Bundle();
         args.putInt(ARG_PAGE, page);
-        PageFragment fragment = new PageFragment();
+        ActivityFragment fragment = new ActivityFragment();
         fragment.setArguments(args);
         return fragment;
     }

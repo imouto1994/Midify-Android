@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -25,7 +27,9 @@
         <!-- Main Activity -->
         <activity
             android:name=".main.MainActivity"
-            android:label="@string/label_main_activity" >
+            android:label="@string/label_main_activity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -37,7 +41,9 @@
         <activity
             android:name=".record.RecordActivity"
             android:label="@string/label_record_activity"
-            android:parentActivityName=".main.MainActivity" >
+            android:parentActivityName=".main.MainActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".main.MainActivity" />
