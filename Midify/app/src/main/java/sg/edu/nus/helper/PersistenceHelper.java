@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import sg.edu.nus.midify.record.Midi;
@@ -18,10 +19,11 @@ public class PersistenceHelper {
 
     public static List<Midi> getMidiList(Context context) {
         SharedPreferences midiPreferences = context.getSharedPreferences(Constant.MIDI_PREFS_NAME,
-                                                                        Context.MODE_PRIVATE);
+                Context.MODE_PRIVATE);
         String serializedDataFromPreferences = midiPreferences.getString(Constant.MIDI_PREFS_KEY, null);
         if (serializedDataFromPreferences == null) {
-            throw new NullPointerException("Cannot find the required key");
+            System.out.print("Cannot find the midi list. System will return an empty list");
+            return new ArrayList<Midi>();
         }
         Type midiListType = new TypeToken<List<Midi>>(){}.getType();
         List<Midi> midiList = new Gson().fromJson(serializedDataFromPreferences, midiListType);
@@ -35,7 +37,7 @@ public class PersistenceHelper {
         SharedPreferences midiPreferences = context.getSharedPreferences(Constant.MIDI_PREFS_NAME,
                 Context.MODE_PRIVATE);
         String json = new Gson().toJson(midiList);
-        midiPreferences.edit().putString(Constant.MIDI_PREFS_KEY, json);
+        midiPreferences.edit().putString(Constant.MIDI_PREFS_KEY, json).apply();
     }
 
     public static String getFacebookUserId(Context context) {
@@ -51,7 +53,18 @@ public class PersistenceHelper {
     public static void saveFacebookUserId(Context context, String facebookUserId) {
         SharedPreferences facebookPreferences = context.getSharedPreferences(Constant.FACEBOOK_PREFS_NAME,
                 Context.MODE_PRIVATE);
-        facebookPreferences.edit().putString(Constant.FACEBOOK_PREFS_USER_ID, facebookUserId);
+        facebookPreferences.edit().putString(Constant.FACEBOOK_PREFS_USER_ID, facebookUserId).apply();
     }
 
+    public static String getFacebookToken(Context context) {
+        SharedPreferences facebookPreferences = context.getSharedPreferences(Constant.FACEBOOK_PREFS_NAME,
+                Context.MODE_PRIVATE);
+        return facebookPreferences.getString(Constant.FACEBOOK_PREFS_TOKEN, null);
+    }
+
+    public static void saveFacebookToken(Context context, String facebookToken) {
+        SharedPreferences facebookPreferences = context.getSharedPreferences(Constant.FACEBOOK_PREFS_NAME,
+                Context.MODE_PRIVATE);
+        facebookPreferences.edit().putString(Constant.FACEBOOK_PREFS_TOKEN, facebookToken).apply();
+    }
 }

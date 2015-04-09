@@ -7,6 +7,7 @@ public class Constant {
     // TAGS FOR LOGGER
     public static final String LOGIN_TAG = "LOGIN";
     public static final String JNI_TAG = "JNI";
+    public static final String RECORD_TAG = "RECORD";
 
     // PREFRENCES NAME
     public static final String MIDI_PREFS_NAME = "MIDI_PREFS";
@@ -14,6 +15,7 @@ public class Constant {
 
     public static final String FACEBOOK_PREFS_NAME = "FACEBOOK_PREFS";
     public static final String FACEBOOK_PREFS_USER_ID = "FACEBOOK_USERID";
+    public static final String FACEBOOK_PREFS_TOKEN = "FACEBOOK_TOKEN";
 
     // Default Directory
     public static String BASE_FILE_DIR = Environment.getExternalStorageDirectory().toString() + "/midify/";

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.SharedPreferences;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -19,8 +18,13 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
+import com.melnykov.fab.FloatingActionButton;
 
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import sg.edu.nus.POJOs.UserPOJO;
 import sg.edu.nus.helper.Constant;
+import sg.edu.nus.helper.MidifyRestClient;
 import sg.edu.nus.helper.PersistenceHelper;
 import sg.edu.nus.helper.SlidingTabLayout;
 import sg.edu.nus.midify.R;
@@ -31,9 +35,14 @@ public class MainActivity extends ActionBarActivity {
     private static final int LOGIN_FRAGMENT_INDEX = 0;
     private static final int FRAGMENT_COUNT = 1;
 
-    private Toolbar toolbar;
+    // UI CONTROLS
+    private FloatingActionButton midifyButton;
+
     private Fragment[] fragments = new Fragment[FRAGMENT_COUNT];
+
     private boolean isResumed = false;
+
+    // FACEBOOK HELPERS
     private UiLifecycleHelper uiHelper;
     private Session.StatusCallback callback = new Session.StatusCallback() {
         @Override
@@ -48,10 +57,15 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         // Initialize toolbar
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
+
+        // Initialize record button
+        midifyButton = (FloatingActionButton) findViewById(R.id.midify_button);
+        midifyButton.hide(false);
+
 
         // Initialize Facebook UIHelper
         uiHelper = new UiLifecycleHelper(this, callback);
@@ -84,6 +98,9 @@ public class MainActivity extends ActionBarActivity {
                 return getResources().getColor(R.color.White);
             }
         });
+
+        // Initialize Midify REST Client
+        MidifyRestClient.initialize();
     }
 
     @Override
@@ -132,10 +149,17 @@ public class MainActivity extends ActionBarActivity {
             // if the session is already open, try to show the selection fragment
             getSupportActionBar().show();
             hideFragment(LOGIN_FRAGMENT_INDEX, false);
-            retrieveUserId(session);
+            String currentToken = PersistenceHelper.getFacebookToken(this);
+            if (currentToken == null || !currentToken.equals(session.getAccessToken())) {
+                retrieveUserId(session);
+                PersistenceHelper.saveFacebookToken(this, session.getAccessToken());
+            }
+            MidifyRestClient.instance().setAccessToken(session.getAccessToken());
+            midifyButton.show(true);
         } else {
             // otherwise present the splash screen and ask the user to login, unless the user explicitly skipped.
             getSupportActionBar().hide();
+            midifyButton.hide(true);
             showFragment(LOGIN_FRAGMENT_INDEX, false);
         }
     }
@@ -147,7 +171,6 @@ public class MainActivity extends ActionBarActivity {
 
     // Handler when state of session has changed
     private void onSessionStateChange(Session session, SessionState state, Exception exception) {
-        Log.d(Constant.LOGIN_TAG, "Session: " + session.getAccessToken());
         if (isResumed) {
             FragmentManager manager = getFragmentManager();
             int backStackSize = manager.getBackStackEntryCount();
@@ -159,8 +182,15 @@ public class MainActivity extends ActionBarActivity {
             if (state.equals(SessionState.OPENED)) {
                 getSupportActionBar().show();
                 hideFragment(LOGIN_FRAGMENT_INDEX, false);
-                retrieveUserId(session);
+                String currentToken = PersistenceHelper.getFacebookToken(this);
+                if (currentToken == null || !currentToken.equals(session.getAccessToken())) {
+                    retrieveUserId(session);
+                    PersistenceHelper.saveFacebookToken(this, session.getAccessToken());
+                }
+                MidifyRestClient.instance().setAccessToken(session.getAccessToken());
+                midifyButton.show(true);
             } else if (state.isClosed()) {
+                midifyButton.hide(true);
                 getSupportActionBar().hide();
                 showFragment(LOGIN_FRAGMENT_INDEX, false);
             }
@@ -176,6 +206,19 @@ public class MainActivity extends ActionBarActivity {
                 if (session == Session.getActiveSession()) {
                     if (user != null) {
                         PersistenceHelper.saveFacebookUserId(context, user.getId());
+                        MidifyRestClient.instance().authenticate(session.getAccessToken(),
+                                user.getId(),
+                                new Callback<UserPOJO>() {
+                            @Override
+                            public void success(UserPOJO userPOJO, retrofit.client.Response response) {
+                                Log.i(Constant.LOGIN_TAG, "Authenticate with Midify Server successfully");
+                            }
+
+                            @Override
+                            public void failure(RetrofitError error) {
+                                Log.e(Constant.LOGIN_TAG, "There is error in authenticating with Midify server");
+                            }
+                        });
                     }
                 }
             }

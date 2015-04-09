@@ -17,8 +17,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+import retrofit.mime.TypedByteArray;
+import sg.edu.nus.POJOs.MidiPOJO;
 import sg.edu.nus.helper.ConnectionHelper;
 import sg.edu.nus.helper.Constant;
+import sg.edu.nus.helper.MidifyRestClient;
 import sg.edu.nus.helper.PersistenceHelper;
 import sg.edu.nus.midi.MidiFile;
 import sg.edu.nus.midi.MidiTrack;
@@ -208,6 +214,7 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
                         materialDialog.dismiss();
                         createMidiFile(charSequence.toString());
                     }
+
                 }).show();
 
     }
@@ -218,8 +225,6 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
         MidiTrack tempoTrack = new MidiTrack();
         MidiTrack noteTrack = new MidiTrack();
 
-        // Add events to each track
-
         // First track is for tempo map
         TimeSignature ts = new TimeSignature();
         ts.setTimeSignature(4, 4, TimeSignature.DEFAULT_METER, TimeSignature.DEFAULT_DIVISION);
@@ -229,12 +234,14 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
         tempoTrack.insertEvent(t);
 
         // Second track is for note map
+        long totalDuration = 0;
         for (int i = 0; i < midiNotes.size(); i++) {
             Note note = midiNotes.get(i);
             int channel = DEFAULT_CHANNEL;
             int pitch = note.note;
             int velocity = note.vel;
             long duration = (long) note.time;
+            totalDuration += duration;
             long tick = i * 480;
 
             noteTrack.insertNote(channel, pitch, velocity, tick, duration);
@@ -247,12 +254,12 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
 
         MidiFile midiFile = new MidiFile(MidiFile.DEFAULT_RESOLUTION, tracks);
         String filePath = Constant.BASE_FILE_DIR + midiFileName
-                        + String.valueOf(System.currentTimeMillis() / 1000);
+                        + String.valueOf(System.currentTimeMillis() / 1000 + ".mid");
         File output = new File(filePath);
         try {
             midiFile.writeToFile(output);
         } catch(IOException e) {
-            System.err.println(e);
+            Log.e(Constant.RECORD_TAG, "Cannot write the MIDI file output");
         }
 
         String facebookUserId = PersistenceHelper.getFacebookUserId(this);
@@ -261,7 +268,22 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
         midiList.add(newMidi);
         PersistenceHelper.saveMidiList(this, midiList);
         if (ConnectionHelper.checkNetworkConnection(this)) {
+            try {
+                MidifyRestClient.instance()
+                        .uploadMidi(filePath, midiFileName, (int) totalDuration, new Callback<MidiPOJO>() {
+                    @Override
+                    public void success(MidiPOJO midiPOJO, Response response) {
+                        System.out.println("CC");
+                    }
 
+                    @Override
+                    public void failure(RetrofitError error) {
+                        System.out.println("URL: " + error.getUrl());
+                    }
+                });
+            } catch (IOException e) {
+                Log.e(Constant.RECORD_TAG, "Cannot upload due to invalid MIDI file path");
+            }
         }
     }
 }

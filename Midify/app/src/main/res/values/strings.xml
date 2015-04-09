@@ -17,7 +17,7 @@
     <string name="dialog_midi_name_input_title">Create MIDI</string>
     <string name="dialog_midi_name_input_content">Midi Name</string>
     <string name="dialog_midi_name_input_hint">Please input your midi file name</string>
-    <string name="dialog_midi_name_input_prefill">Please input your midi file name</string>
+    <string name="dialog_midi_name_input_prefill"></string>
 
     <!-- MIDI CONVERT AND UPLOAD PROGRESS -->
     <string name="dialog_midi_progress_title">MIDI Progress</string>
