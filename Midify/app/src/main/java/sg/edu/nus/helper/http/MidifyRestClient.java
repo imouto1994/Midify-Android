@@ -38,7 +38,7 @@ public class MidifyRestClient {
         @Multipart
         @POST("/midi/upload")
         void uploadMidi(@Part("midi") TypedFile midiFile, @Part("title") String title,
-                        @Part("duration") int duration, Callback<MidiPOJO> callback);
+                        Callback<MidiPOJO> callback);
     }
 
     public static void initialize() {
@@ -71,12 +71,12 @@ public class MidifyRestClient {
             throw new IOException("File does not exist");
         }
         TypedFile uploadFile = new TypedFile("application/octet-stream", file);
-        midifyApi.uploadMidi(uploadFile, title, duration, callback);
+        midifyApi.uploadMidi(uploadFile, title, callback);
     }
 
     // AUTHENTICATE ACTION
     public void authenticate(String accessToken, String userId, Callback<UserPOJO> callback) {
-        UserPOJO user = new UserPOJO(accessToken, userId);
+        UserPOJO user = UserPOJO.createUserWithoutName(accessToken, userId);
         midifyApi.authenticate(user, callback);
     }
 

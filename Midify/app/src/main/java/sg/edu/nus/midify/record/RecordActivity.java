@@ -50,7 +50,7 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
 
     // Persistence Data
     private SharedPreferences midiPreferences;
-    private List<Midi> midiList;
+    private List<MidiPOJO> midiList;
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
@@ -263,7 +263,7 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
 
         String facebookUserId = PersistenceHelper.getFacebookUserId(this);
 
-        Midi newMidi = new Midi(midiFileName, filePath, facebookUserId);
+        MidiPOJO newMidi = MidiPOJO.createLocalMidiWithoutId(midiFileName, filePath, facebookUserId);
         midiList.add(newMidi);
         PersistenceHelper.saveMidiList(this, midiList);
         if (ConnectionHelper.checkNetworkConnection(this)) {

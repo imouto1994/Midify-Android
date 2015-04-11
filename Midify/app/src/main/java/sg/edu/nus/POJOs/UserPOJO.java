@@ -6,10 +6,22 @@ package sg.edu.nus.POJOs;
 public class UserPOJO {
     private String token;
     private String userId;
+    private String name;
 
-    public UserPOJO(String token, String userId) {
-        this.token = token;
-        this.userId = userId;
+    public static UserPOJO createUserWithoutName(String token, String userId) {
+        UserPOJO user = new UserPOJO();
+        user.token = token;
+        user.userId = userId;
+
+        return user;
+    }
+
+    public static UserPOJO createUserWithoutToken(String userId, String name) {
+        UserPOJO user = new UserPOJO();
+        user.userId = userId;
+        user.name = name;
+
+        return user;
     }
 
     public String getToken() {

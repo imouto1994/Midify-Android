@@ -10,6 +10,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import sg.edu.nus.POJOs.MidiPOJO;
 import sg.edu.nus.helper.Constant;
 import sg.edu.nus.midify.record.Midi;
 
@@ -18,23 +19,23 @@ import sg.edu.nus.midify.record.Midi;
  */
 public class PersistenceHelper {
 
-    public static List<Midi> getMidiList(Context context) {
+    public static List<MidiPOJO> getMidiList(Context context) {
         SharedPreferences midiPreferences = context.getSharedPreferences(Constant.MIDI_PREFS_NAME,
                 Context.MODE_PRIVATE);
         String serializedDataFromPreferences = midiPreferences.getString(Constant.MIDI_PREFS_KEY, null);
         if (serializedDataFromPreferences == null) {
             System.out.print("Cannot find the midi list. System will return an empty list");
-            return new ArrayList<Midi>();
+            return new ArrayList<MidiPOJO>();
         }
         Type midiListType = new TypeToken<List<Midi>>(){}.getType();
-        List<Midi> midiList = new Gson().fromJson(serializedDataFromPreferences, midiListType);
+        List<MidiPOJO> midiList = new Gson().fromJson(serializedDataFromPreferences, midiListType);
         if (midiList == null) {
             throw new NullPointerException("The persistence data is not in correct format");
         }
         return midiList;
     }
 
-    public static void saveMidiList(Context context, List<Midi> midiList) {
+    public static void saveMidiList(Context context, List<MidiPOJO> midiList) {
         SharedPreferences midiPreferences = context.getSharedPreferences(Constant.MIDI_PREFS_NAME,
                 Context.MODE_PRIVATE);
         String json = new Gson().toJson(midiList);
