@@ -45,6 +45,8 @@ public class ActivityFragment extends Fragment implements SwipeRefreshLayout.OnR
         activityList.setHasFixedSize(true);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         activityList.setLayoutManager(llm);
+        ActivityListAdapter listAdapter = new ActivityListAdapter();
+        activityList.setAdapter(listAdapter);
 
 
 
