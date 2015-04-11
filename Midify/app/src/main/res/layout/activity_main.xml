@@ -14,7 +14,7 @@
         <include layout="@layout/toolbar" />
 
         <!-- Sliding Tab Layout -->
-        <sg.edu.nus.helper.SlidingTabLayout
+        <sg.edu.nus.helper.slidingtab.SlidingTabLayout
             android:id="@+id/sliding_tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

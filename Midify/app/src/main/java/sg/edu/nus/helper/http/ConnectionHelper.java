@@ -1,4 +1,4 @@
-package sg.edu.nus.helper;
+package sg.edu.nus.helper.http;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

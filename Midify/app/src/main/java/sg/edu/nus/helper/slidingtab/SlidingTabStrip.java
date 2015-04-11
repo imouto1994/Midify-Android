@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package sg.edu.nus.helper;
+package sg.edu.nus.helper.slidingtab;
 
 import android.R;
 import android.content.Context;

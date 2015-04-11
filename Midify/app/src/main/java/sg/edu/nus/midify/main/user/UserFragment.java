@@ -15,8 +15,7 @@ import sg.edu.nus.midify.main.activity.ActivityFragment;
 public class UserFragment extends Fragment {
 
     public static ActivityFragment newInstance() {
-        ActivityFragment fragment = new ActivityFragment();
-        return fragment;
+        return new ActivityFragment();
     }
 
     @Override

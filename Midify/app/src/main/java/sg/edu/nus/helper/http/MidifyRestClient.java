@@ -1,4 +1,4 @@
-package sg.edu.nus.helper;
+package sg.edu.nus.helper.http;
 
 import java.io.File;
 import java.io.IOException;

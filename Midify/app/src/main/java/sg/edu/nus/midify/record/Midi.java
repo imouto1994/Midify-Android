@@ -24,16 +24,6 @@ public class Midi {
         this(fileName, filePath, UNDEFINED, userID);
     }
 
-    public String serialize() {
-        Gson gson = new Gson();
-        return gson.toJson(this);
-    }
-
-    static public Midi create(String serializedData) {
-        Gson gson = new Gson();
-        return gson.fromJson(serializedData, Midi.class);
-    }
-
     public String getFileName() {
         return this.fileName;
     }

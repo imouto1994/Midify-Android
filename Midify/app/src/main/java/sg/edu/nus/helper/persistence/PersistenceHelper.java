@@ -1,4 +1,4 @@
-package sg.edu.nus.helper;
+package sg.edu.nus.helper.persistence;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,6 +10,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import sg.edu.nus.helper.Constant;
 import sg.edu.nus.midify.record.Midi;
 
 /**
