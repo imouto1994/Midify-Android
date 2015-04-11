@@ -28,6 +28,7 @@ import sg.edu.nus.helper.MidifyRestClient;
 import sg.edu.nus.helper.PersistenceHelper;
 import sg.edu.nus.helper.SlidingTabLayout;
 import sg.edu.nus.midify.R;
+import sg.edu.nus.midify.main.login.LoginFragment;
 import sg.edu.nus.midify.record.RecordActivity;
 
 public class MainActivity extends ActionBarActivity {
@@ -83,7 +84,7 @@ public class MainActivity extends ActionBarActivity {
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
-        viewPager.setAdapter(new MidifyFragmentPagerAdapter(getSupportFragmentManager(),
+        viewPager.setAdapter(new MainActivityFragmentPagerAdapter(getSupportFragmentManager(),
                 MainActivity.this));
 
         // Give the SlidingTabLayout the ViewPager

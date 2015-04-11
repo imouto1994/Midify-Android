@@ -45,7 +45,7 @@
         />
 
     <!-- Overlay Login Fragment -->
-    <fragment android:name="sg.edu.nus.midify.main.LoginFragment"
+    <fragment android:name="sg.edu.nus.midify.main.login.LoginFragment"
         android:id="@+id/login_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -65,7 +65,7 @@ public class MidifyRestClient {
 
     // UPLOAD ACTION
     public void uploadMidi(String filePath, String title,
-                           int duration, Callback<MidiPOJO> callback) throws IOException {
+                           Callback<MidiPOJO> callback) throws IOException {
         File file = new File(filePath);
         if (!file.exists()) {
             throw new IOException("File does not exist");

@@ -270,7 +270,7 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
         if (ConnectionHelper.checkNetworkConnection(this)) {
             try {
                 MidifyRestClient.instance()
-                        .uploadMidi(filePath, midiFileName, (int) totalDuration, new Callback<MidiPOJO>() {
+                        .uploadMidi(filePath, midiFileName, new Callback<MidiPOJO>() {
                     @Override
                     public void success(MidiPOJO midiPOJO, Response response) {
                         System.out.println("CC");
