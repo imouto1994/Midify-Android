@@ -5,6 +5,7 @@ import android.os.Environment;
 public class Constant {
 
     // TAGS FOR LOGGER
+    public static final String REQUEST_TAG = "REQUEST";
     public static final String LOGIN_TAG = "LOGIN";
     public static final String JNI_TAG = "JNI";
     public static final String RECORD_TAG = "RECORD";

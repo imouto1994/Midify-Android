@@ -2,20 +2,17 @@ package sg.edu.nus.helper.http;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import retrofit.Callback;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
-import retrofit.http.Body;
-import retrofit.http.Multipart;
-import retrofit.http.POST;
-import retrofit.http.Part;
 import retrofit.mime.TypedFile;
 import sg.edu.nus.POJOs.MidiPOJO;
 import sg.edu.nus.POJOs.UserPOJO;
 
 public class MidifyRestClient {
-    private static final String IP = "192.168.0.103";
+    private static final String IP = "192.168.0.101";
     private static final String PORT = "9000";
     private static final String BASE_URL = "http://" + IP + ":" + PORT + "/api";
 
@@ -28,19 +25,7 @@ public class MidifyRestClient {
     // Retrofit API Interface
     private MidifyService midifyApi;
 
-    /* RetroFit Service */
-    private interface MidifyService {
-        // Authenticate Server
-        @POST("/users")
-        void authenticate(@Body UserPOJO user, Callback<UserPOJO> callback);
-
-        // Upload MIDI
-        @Multipart
-        @POST("/midi/upload")
-        void uploadMidi(@Part("midi") TypedFile midiFile, @Part("title") String title,
-                        Callback<MidiPOJO> callback);
-    }
-
+    // INITIALIZE INSTANCE OF REST CLIENT
     public static void initialize() {
         if (instance == null) {
             instance = new MidifyRestClient();
@@ -61,6 +46,11 @@ public class MidifyRestClient {
                 .setRequestInterceptor(requestInterceptor)
                 .build();
         instance.midifyApi = restAdapter.create(MidifyService.class);
+    }
+
+    // RETRIVE FRIENDS ACTION
+    public void getFriends(Callback<List<UserPOJO>> callback) {
+        midifyApi.retrieveFriends(callback);
     }
 
     // UPLOAD ACTION
@@ -84,6 +74,7 @@ public class MidifyRestClient {
         return instance;
     }
 
+    /* TOKEN HELPER FUNCTIONS */
     public void setAccessToken(String token) {
         this.accessToken = token;
     }

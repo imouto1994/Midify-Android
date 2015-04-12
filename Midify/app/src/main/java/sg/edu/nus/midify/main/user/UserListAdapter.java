@@ -5,36 +5,45 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import sg.edu.nus.POJOs.ActivityPOJO;
+import sg.edu.nus.POJOs.UserPOJO;
+import sg.edu.nus.helper.http.ConnectionHelper;
 import sg.edu.nus.midify.R;
-import sg.edu.nus.midify.main.activity.ActivityViewHolder;
 
-/**
- * Created by Youn on 12/4/15.
- */
 public class UserListAdapter extends RecyclerView.Adapter<UserViewHolder> {
 
-    private List<ActivityPOJO> activityList;
+    private List<UserPOJO> userList = new ArrayList<>();
 
     @Override
     public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater
                 .from(parent.getContext())
-                .inflate(R.layout.item_activity, parent, false);
+                .inflate(R.layout.item_user, parent, false);
 
         return new UserViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(UserViewHolder holder, int position) {
-        ActivityPOJO activity = activityList.get(position);
-        holder.getTitle().setText("Activity");
+        UserPOJO user = userList.get(position);
+        holder.getProfileNameView().setText(user.getName());
+
+        String profilePictureURL = ConnectionHelper.getFacebookProfilePictureURL(user.getUserId());
+        ConnectionHelper.downloadImage(holder.getProfilePictureView(), profilePictureURL);
     }
 
     @Override
     public int getItemCount() {
-        return activityList.size();
+        return userList.size();
+    }
+
+    public void refreshUserList(List<UserPOJO> newList) {
+        if (this.userList.size() == newList.size()) {
+            return;
+        }
+        this.userList.clear();
+        this.userList.addAll(newList);
     }
 }

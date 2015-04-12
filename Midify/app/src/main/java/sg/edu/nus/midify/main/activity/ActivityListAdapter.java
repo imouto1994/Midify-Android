@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import sg.edu.nus.POJOs.ActivityPOJO;
@@ -15,7 +16,7 @@ import sg.edu.nus.midify.R;
  */
 public class ActivityListAdapter extends RecyclerView.Adapter<ActivityViewHolder> {
 
-    private List<ActivityPOJO> activityList;
+    private List<ActivityPOJO> activityList = new ArrayList<>();
 
     @Override
     public ActivityViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

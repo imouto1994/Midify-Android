@@ -12,7 +12,6 @@ import java.util.List;
 
 import sg.edu.nus.POJOs.MidiPOJO;
 import sg.edu.nus.helper.Constant;
-import sg.edu.nus.midify.record.Midi;
 
 /**
  * Created by Youn on 8/4/15.
@@ -27,7 +26,7 @@ public class PersistenceHelper {
             System.out.print("Cannot find the midi list. System will return an empty list");
             return new ArrayList<MidiPOJO>();
         }
-        Type midiListType = new TypeToken<List<Midi>>(){}.getType();
+        Type midiListType = new TypeToken<List<MidiPOJO>>(){}.getType();
         List<MidiPOJO> midiList = new Gson().fromJson(serializedDataFromPreferences, midiListType);
         if (midiList == null) {
             throw new NullPointerException("The persistence data is not in correct format");

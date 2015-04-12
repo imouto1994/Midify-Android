@@ -5,6 +5,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.pkmmte.view.CircularImageView;
+
 import sg.edu.nus.midify.R;
 
 /**
@@ -12,20 +14,20 @@ import sg.edu.nus.midify.R;
  */
 public class UserViewHolder extends RecyclerView.ViewHolder {
 
-    private ImageView imageView;
-    private TextView textView;
+    private ImageView profilePictureView;
+    private TextView profileNameView;
 
     public UserViewHolder(View itemView) {
         super(itemView);
-        imageView = (ImageView) itemView.findViewById(R.id.icon);
-        textView = (TextView) itemView.findViewById(R.id.title);
+        profilePictureView = (CircularImageView) itemView.findViewById(R.id.profile_picture);
+        profileNameView = (TextView) itemView.findViewById(R.id.profile_name);
     }
 
-    public ImageView getImageView() {
-        return this.imageView;
+    public ImageView getProfilePictureView() {
+        return this.profilePictureView;
     }
 
-    public TextView getTitle() {
-        return this.textView;
+    public TextView getProfileNameView() {
+        return this.profileNameView;
     }
 }

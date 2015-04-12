@@ -1,11 +1,13 @@
 package sg.edu.nus.POJOs;
 
-/**
- * Created by Youn on 10/4/15.
- */
+import com.google.gson.annotations.SerializedName;
+
 public class UserPOJO {
+    @SerializedName("_id")
     private String token;
+    @SerializedName("userId")
     private String userId;
+    @SerializedName("name")
     private String name;
 
     public static UserPOJO createUserWithoutName(String token, String userId) {
@@ -32,6 +34,10 @@ public class UserPOJO {
         return userId;
     }
 
+    public String getName() {
+        return this.name;
+    }
+
     public void setToken(String token) {
         this.token = token;
     }
@@ -40,4 +46,7 @@ public class UserPOJO {
         this.userId = userId;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
 }
