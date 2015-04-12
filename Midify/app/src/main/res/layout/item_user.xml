@@ -2,15 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
+    android:background="?android:attr/selectableItemBackground"
     android:layout_height="?attr/listPreferredItemHeight"
     android:gravity="center_vertical"
     android:paddingLeft="8dp"
-    android:paddingRight="8dp">
+    android:paddingRight="8dp"
+    android:clickable="true"
+    android:focusable="true">
 
     <com.pkmmte.view.CircularImageView
         android:id="@+id/profile_picture"
-        android:layout_width="32dp"
-        android:layout_height="32dp" />
+        android:layout_width="48dp"
+        android:layout_height="48dp" />
 
     <TextView
         android:id="@+id/profile_name"

@@ -23,5 +23,8 @@
     <string name="dialog_midi_progress_title">MIDI Progress</string>
     <string name="dialog_midi_progress_convert">Converting</string>
     <string name="dialog_midi_progress_upload">Uploading</string>
+    <string name="title_activity_midi">MidiActivity</string>
+
+    <string name="hello_world">Hello world!</string>
 
 </resources>

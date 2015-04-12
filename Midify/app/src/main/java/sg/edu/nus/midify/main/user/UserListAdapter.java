@@ -40,10 +40,8 @@ public class UserListAdapter extends RecyclerView.Adapter<UserViewHolder> {
     }
 
     public void refreshUserList(List<UserPOJO> newList) {
-        if (this.userList.size() == newList.size()) {
-            return;
-        }
         this.userList.clear();
         this.userList.addAll(newList);
+        notifyDataSetChanged();
     }
 }

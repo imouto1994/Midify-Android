@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit.Callback;
@@ -20,11 +21,10 @@ import sg.edu.nus.POJOs.UserPOJO;
 import sg.edu.nus.helper.Constant;
 import sg.edu.nus.helper.http.MidifyRestClient;
 import sg.edu.nus.helper.recyclerview.DividerItemDecoration;
+import sg.edu.nus.helper.recyclerview.SectionedListAdapter;
+import sg.edu.nus.helper.recyclerview.SectionedListAdapter.Section;
 import sg.edu.nus.midify.R;
 
-/**
- * Created by Youn on 8/4/15.
- */
 public class UserFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private SwipeRefreshLayout refreshLayout;
@@ -75,9 +75,19 @@ public class UserFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        // Configure adapter
+        // Initialize original adapter
         UserListAdapter listAdapter = new UserListAdapter();
-        userList.setAdapter(listAdapter);
+        // Initialize the list of sections
+        List<SectionedListAdapter.Section> sections =new ArrayList<>();
+        sections.add(new SectionedListAdapter.Section(0,"Me"));
+        sections.add(new SectionedListAdapter.Section(1,"Friends"));
+        // Initialize the section adapter container
+        Section[] dummy = new Section[sections.size()];
+        SectionedListAdapter sectionedAdapter = new SectionedListAdapter(
+                this.getActivity(), R.layout.item_section, R.id.section_text,listAdapter);
+        sectionedAdapter.setSections(sections.toArray(dummy));
+
+        userList.setAdapter(sectionedAdapter);
         refreshList();
     }
 
