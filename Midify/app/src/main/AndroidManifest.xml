@@ -48,9 +48,17 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".main.MainActivity" />
         </activity>
+
+        <!-- Midi Activity -->
         <activity
             android:name=".midi.MidiActivity"
-            android:label="@string/title_activity_midi" >
+            android:configChanges="orientation"
+            android:label="@string/label_midi_activity"
+            android:parentActivityName=".main.MainActivity"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".main.MainActivity" />
         </activity>
     </application>
 

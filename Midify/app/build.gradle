@@ -84,6 +84,9 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.0.0'
     compile 'com.android.support:recyclerview-v7:22.0.0'
 
+    /* Iconify */
+    compile 'com.joanzapata.android:android-iconify:1.0.9'
+
     /* Circular Image View */
     compile 'com.pkmmte.view:circularimageview:1.1'
 

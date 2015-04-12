@@ -9,6 +9,7 @@
     <!-- ACTIVITY LABELS -->
     <string name="label_main_activity">Midify</string>
     <string name="label_record_activity">Record</string>
+    <string name="label_midi_activity">Midi</string>
 
     <!-- STRINGS -->
     <string name="text_record_button">Record</string>
@@ -23,7 +24,6 @@
     <string name="dialog_midi_progress_title">MIDI Progress</string>
     <string name="dialog_midi_progress_convert">Converting</string>
     <string name="dialog_midi_progress_upload">Uploading</string>
-    <string name="title_activity_midi">MidiActivity</string>
 
     <string name="hello_world">Hello world!</string>
 

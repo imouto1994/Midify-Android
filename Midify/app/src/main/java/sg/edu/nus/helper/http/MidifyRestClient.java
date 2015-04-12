@@ -16,7 +16,7 @@ public class MidifyRestClient {
     private static final String PORT = "9000";
     private static final String BASE_URL = "http://" + IP + ":" + PORT + "/api";
 
-    // Skeleton Instance
+    // Singleton Instance
     private static MidifyRestClient instance;
 
     // Access Token

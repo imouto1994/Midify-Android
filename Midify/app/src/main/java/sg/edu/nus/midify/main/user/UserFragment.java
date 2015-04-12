@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -73,6 +74,7 @@ public class UserFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         RecyclerView.ItemDecoration itemDecoration =
                 new DividerItemDecoration(this.getActivity(), DividerItemDecoration.VERTICAL_LIST);
         userList.addItemDecoration(itemDecoration);
+        userList.setItemAnimator(new DefaultItemAnimator());
     }
 
     @Override
@@ -92,6 +94,20 @@ public class UserFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         sectionedAdapter.setSections(sections.toArray(dummy));
 
         userList.setAdapter(sectionedAdapter);
+        userList.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                LinearLayoutManager layoutManager = (LinearLayoutManager) userList.getLayoutManager();
+                refreshLayout.setEnabled(layoutManager.findFirstCompletelyVisibleItemPosition() == 0);
+            }
+        });
+
         if (PersistenceHelper.getFacebookToken(getActivity()) != null) {
             refreshList();
         }

@@ -27,4 +27,7 @@ public class Constant {
     public static String DEFAULT_WAV_FILE_PATH = BASE_FILE_DIR + "temp.wav";
     public static String DEFAULT_MIDI_FILE_PATH = BASE_FILE_DIR + "temp.midi";
 
+    // Intent params
+    public static String INTENT_PARAM_USER_ID = "userId";
+
 }

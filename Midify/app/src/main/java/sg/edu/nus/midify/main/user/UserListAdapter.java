@@ -1,6 +1,7 @@
 package sg.edu.nus.midify.main.user;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,8 +17,9 @@ import sg.edu.nus.helper.Constant;
 import sg.edu.nus.helper.http.ConnectionHelper;
 import sg.edu.nus.helper.persistence.PersistenceHelper;
 import sg.edu.nus.midify.R;
+import sg.edu.nus.midify.midi.MidiActivity;
 
-public class UserListAdapter extends RecyclerView.Adapter<UserViewHolder> {
+public class UserListAdapter extends RecyclerView.Adapter<UserViewHolder> implements UserViewHolder.ViewHolderOnClick {
 
     private List<UserPOJO> userList;
     private Context context;
@@ -39,7 +41,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserViewHolder> {
                 .from(parent.getContext())
                 .inflate(R.layout.item_user, parent, false);
 
-        return new UserViewHolder(itemView);
+        return new UserViewHolder(itemView, this);
     }
 
     @Override
@@ -48,6 +50,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserViewHolder> {
             return;
         }
         UserPOJO user = userList.get(position);
+        holder.setUserId(user.getUserId());
         holder.getProfileNameView().setText(user.getName());
 
         if (ConnectionHelper.checkNetworkConnection(context)) {
@@ -59,7 +62,6 @@ public class UserListAdapter extends RecyclerView.Adapter<UserViewHolder> {
                 holder.getProfilePictureView().setImageURI(Uri.fromFile(localProfilePicture));
             }
         }
-
     }
 
     @Override
@@ -72,5 +74,12 @@ public class UserListAdapter extends RecyclerView.Adapter<UserViewHolder> {
         addDefaultUser();
         this.userList.addAll(newList);
         notifyDataSetChanged();
+    }
+
+    @Override
+    public void onViewHolderClick(View v, String userId) {
+        Intent midiIntent = new Intent(context, MidiActivity.class);
+        midiIntent.putExtra(Constant.INTENT_PARAM_USER_ID, userId);
+        context.startActivity(midiIntent);
     }
 }
