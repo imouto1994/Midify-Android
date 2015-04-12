@@ -1,10 +1,10 @@
 package sg.edu.nus.midify.main;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -24,17 +24,23 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import sg.edu.nus.POJOs.UserPOJO;
 import sg.edu.nus.helper.Constant;
+import sg.edu.nus.helper.http.ConnectionHelper;
+import sg.edu.nus.helper.http.DownloadImageTask;
 import sg.edu.nus.helper.http.MidifyRestClient;
+import sg.edu.nus.helper.http.SaveImageTask;
 import sg.edu.nus.helper.persistence.PersistenceHelper;
 import sg.edu.nus.helper.slidingtab.SlidingTabLayout;
 import sg.edu.nus.midify.R;
 import sg.edu.nus.midify.main.login.LoginFragment;
+import sg.edu.nus.midify.main.user.UserFragment;
 import sg.edu.nus.midify.record.RecordActivity;
 
 public class MainActivity extends ActionBarActivity {
 
-    private static final int LOGIN_FRAGMENT_INDEX = 0;
-    private static final int FRAGMENT_COUNT = 1;
+    public static final int LOGIN_FRAGMENT_INDEX = 0;
+    public static final int ACTIVITY_FRAGMENT_INDEX = 1;
+    public static final int USER_FRAGMENT_INDEX = 2;
+    public static final int FRAGMENT_COUNT = 3;
 
     // UI CONTROLS
     private FloatingActionButton midifyButton;
@@ -72,13 +78,15 @@ public class MainActivity extends ActionBarActivity {
         uiHelper = new UiLifecycleHelper(this, callback);
         uiHelper.onCreate(savedInstanceState);
 
-        FragmentManager fm = getFragmentManager();
+        FragmentManager fm = getSupportFragmentManager();
         LoginFragment loginFragment = (LoginFragment) fm.findFragmentById(R.id.login_fragment);
         fragments[LOGIN_FRAGMENT_INDEX] = loginFragment;
 
         FragmentTransaction transaction = fm.beginTransaction();
-        for(int i = 0; i < fragments.length; i++) {
-            transaction.hide(fragments[i]);
+        for (int i = 0; i < fragments.length; i++) {
+            if (fragments[i] != null) {
+                transaction.hide(fragments[i]);
+            }
         }
         transaction.commit();
 
@@ -173,7 +181,7 @@ public class MainActivity extends ActionBarActivity {
     // Handler when state of session has changed
     private void onSessionStateChange(Session session, SessionState state, Exception exception) {
         if (isResumed) {
-            FragmentManager manager = getFragmentManager();
+            FragmentManager manager = getSupportFragmentManager();
             int backStackSize = manager.getBackStackEntryCount();
             for (int i = 0; i < backStackSize; i++) {
                 manager.popBackStack();
@@ -207,19 +215,28 @@ public class MainActivity extends ActionBarActivity {
                 if (session == Session.getActiveSession()) {
                     if (user != null) {
                         PersistenceHelper.saveFacebookUserId(context, user.getId());
+                        PersistenceHelper.saveFacebookUserName(context, user.getName());
+                        // Save Local Profile Picture
+                        String profilePictureURL = ConnectionHelper.getFacebookProfilePictureURL(user.getId());
+                        ConnectionHelper.saveImage(Constant.DEFAULT_PROFILE_PICTURE_NAME, profilePictureURL);
+                        // Add Local User
+                        UserFragment userFragment = (UserFragment) fragments[USER_FRAGMENT_INDEX];
+                        userFragment.getListAdapter().addDefaultUser();
+                        userFragment.refreshList();
+
                         MidifyRestClient.instance().authenticate(session.getAccessToken(),
                                 user.getId(),
                                 new Callback<UserPOJO>() {
-                            @Override
-                            public void success(UserPOJO userPOJO, retrofit.client.Response response) {
-                                Log.i(Constant.LOGIN_TAG, "Authenticate with Midify Server successfully");
-                            }
+                                    @Override
+                                    public void success(UserPOJO userPOJO, retrofit.client.Response response) {
+                                        Log.i(Constant.LOGIN_TAG, "Authenticate with Midify Server successfully");
+                                    }
 
-                            @Override
-                            public void failure(RetrofitError error) {
-                                Log.e(Constant.LOGIN_TAG, "There is error in authenticating with Midify server");
-                            }
-                        });
+                                    @Override
+                                    public void failure(RetrofitError error) {
+                                        Log.e(Constant.LOGIN_TAG, "There is error in authenticating with Midify server");
+                                    }
+                                });
                     }
                 }
             }
@@ -228,7 +245,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void showFragment(int fragmentIndex, boolean addToBackStack) {
-        FragmentManager fm = getFragmentManager();
+        FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction transaction = fm.beginTransaction();
         transaction.show(fragments[fragmentIndex]);
         if (addToBackStack) {
@@ -238,12 +255,18 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void hideFragment(int fragmentIndex, boolean addToBackStack) {
-        FragmentManager fm = getFragmentManager();
+        FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction transaction = fm.beginTransaction();
         transaction.hide(fragments[fragmentIndex]);
         if (addToBackStack) {
             transaction.addToBackStack(null);
         }
         transaction.commit();
+    }
+
+    public void setFragment(Fragment fragment, int fragmentIndex) {
+        if (fragmentIndex < fragments.length) {
+            fragments[fragmentIndex] = fragment;
+        }
     }
 }

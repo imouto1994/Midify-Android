@@ -2,10 +2,13 @@ package sg.edu.nus.helper.persistence;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,9 +16,6 @@ import java.util.List;
 import sg.edu.nus.POJOs.MidiPOJO;
 import sg.edu.nus.helper.Constant;
 
-/**
- * Created by Youn on 8/4/15.
- */
 public class PersistenceHelper {
 
     public static List<MidiPOJO> getMidiList(Context context) {
@@ -57,6 +57,22 @@ public class PersistenceHelper {
         facebookPreferences.edit().putString(Constant.FACEBOOK_PREFS_USER_ID, facebookUserId).apply();
     }
 
+    public static String getFacebookUserName(Context context) {
+        SharedPreferences facebookPreferences = context.getSharedPreferences(Constant.FACEBOOK_PREFS_NAME,
+                Context.MODE_PRIVATE);
+        String facebookUserId = facebookPreferences.getString(Constant.FACEBOOK_PREFS_USER_NAME, null);
+        if (facebookUserId == null) {
+            throw new NullPointerException("Facebook User Name does not exist");
+        }
+        return facebookUserId;
+    }
+
+    public static void saveFacebookUserName(Context context, String facebookUserName) {
+        SharedPreferences facebookPreferences = context.getSharedPreferences(Constant.FACEBOOK_PREFS_NAME,
+                Context.MODE_PRIVATE);
+        facebookPreferences.edit().putString(Constant.FACEBOOK_PREFS_USER_NAME, facebookUserName).apply();
+    }
+
     public static String getFacebookToken(Context context) {
         SharedPreferences facebookPreferences = context.getSharedPreferences(Constant.FACEBOOK_PREFS_NAME,
                 Context.MODE_PRIVATE);
@@ -67,5 +83,23 @@ public class PersistenceHelper {
         SharedPreferences facebookPreferences = context.getSharedPreferences(Constant.FACEBOOK_PREFS_NAME,
                 Context.MODE_PRIVATE);
         facebookPreferences.edit().putString(Constant.FACEBOOK_PREFS_TOKEN, facebookToken).apply();
+    }
+
+    public static void saveImage(String imageName, Bitmap finalBitmap) {
+
+        String filePath = Constant.BASE_FILE_DIR + imageName + ".jpg";
+        File file = new File (filePath);
+        if (file.exists()) {
+            file.delete ();
+        }
+
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

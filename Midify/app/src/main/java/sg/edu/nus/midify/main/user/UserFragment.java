@@ -19,7 +19,9 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 import sg.edu.nus.POJOs.UserPOJO;
 import sg.edu.nus.helper.Constant;
+import sg.edu.nus.helper.http.ConnectionHelper;
 import sg.edu.nus.helper.http.MidifyRestClient;
+import sg.edu.nus.helper.persistence.PersistenceHelper;
 import sg.edu.nus.helper.recyclerview.DividerItemDecoration;
 import sg.edu.nus.helper.recyclerview.SectionedListAdapter;
 import sg.edu.nus.helper.recyclerview.SectionedListAdapter.Section;
@@ -29,6 +31,7 @@ public class UserFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
     private SwipeRefreshLayout refreshLayout;
     private RecyclerView userList;
+    private UserListAdapter listAdapter;
 
     public static UserFragment newInstance() {
         return new UserFragment();
@@ -76,7 +79,8 @@ public class UserFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         // Initialize original adapter
-        UserListAdapter listAdapter = new UserListAdapter();
+        listAdapter = new UserListAdapter(this.getActivity());
+
         // Initialize the list of sections
         List<SectionedListAdapter.Section> sections =new ArrayList<>();
         sections.add(new SectionedListAdapter.Section(0,"Me"));
@@ -88,27 +92,39 @@ public class UserFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         sectionedAdapter.setSections(sections.toArray(dummy));
 
         userList.setAdapter(sectionedAdapter);
-        refreshList();
+        if (PersistenceHelper.getFacebookToken(getActivity()) != null) {
+            refreshList();
+        }
     }
 
-    private void refreshList() {
-        MidifyRestClient.instance().getFriends(new Callback<List<UserPOJO>>() {
-            @Override
-            public void success(List<UserPOJO> userPOJOs, Response response) {
-                UserListAdapter adapter = (UserListAdapter) userList.getAdapter();
-                adapter.refreshUserList(userPOJOs);
-                refreshLayout.setRefreshing(false);
-            }
+    public void refreshList() {
+        if (ConnectionHelper.checkNetworkConnection(getActivity())) {
+            MidifyRestClient.instance().getFriends(new Callback<List<UserPOJO>>() {
+                @Override
+                public void success(List<UserPOJO> userPOJOs, Response response) {
+                    listAdapter.refreshUserList(userPOJOs);
+                    refreshLayout.setRefreshing(false);
+                }
 
-            @Override
-            public void failure(RetrofitError error) {
-                Log.e(Constant.REQUEST_TAG, error.getMessage());
-            }
-        });
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.e(Constant.REQUEST_TAG, error.getMessage());
+                    listAdapter.refreshUserList(new ArrayList<UserPOJO>());
+                    refreshLayout.setRefreshing(false);
+                }
+            });
+        } else {
+            listAdapter.refreshUserList(new ArrayList<UserPOJO>());
+            refreshLayout.setRefreshing(false);
+        }
     }
 
     @Override
     public void onRefresh() {
         refreshList();
+    }
+
+    public UserListAdapter getListAdapter() {
+        return this.listAdapter;
     }
 }

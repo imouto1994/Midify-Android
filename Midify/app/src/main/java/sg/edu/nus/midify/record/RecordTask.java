@@ -22,7 +22,7 @@ public class RecordTask extends AsyncTask<Void, Void, Void> {
         this.delegate.setRecorder(recorderInstance);
 
         Thread th = new Thread(recorderInstance);
-        recorderInstance.setFileName(new File(Constant.DEFAULT_PCM_FILE_NAME));
+        recorderInstance.setFileName(new File(Constant.DEFAULT_PCM_FILE_PATH));
         th.start();
         recorderInstance.setRecording(true);
 

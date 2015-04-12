@@ -110,11 +110,11 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
     @Override
     public void initializeConverters() {
         // Initialize the PCM to WAV converter
-        pcmToWavConverter = new PcmToWavConverter(Constant.DEFAULT_PCM_FILE_NAME,
-                                                   Constant.DEFAULT_WAV_FILE_NAME);
+        pcmToWavConverter = new PcmToWavConverter(Constant.DEFAULT_PCM_FILE_PATH,
+                                                   Constant.DEFAULT_WAV_FILE_PATH);
 
         // Initialize the WAV to MIDI converter
-        wavToMidiConverter = new WavToMidiConverter(Constant.DEFAULT_WAV_FILE_NAME);
+        wavToMidiConverter = new WavToMidiConverter(Constant.DEFAULT_WAV_FILE_PATH);
     }
 
     //=============================================================================================

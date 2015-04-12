@@ -29,6 +29,11 @@ public class ConnectionHelper {
         task.execute();
     }
 
+    public static void saveImage(String fileName, String imageURL) {
+        SaveImageTask task = new SaveImageTask(fileName, imageURL);
+        task.execute();
+    }
+
     public static String getFacebookProfilePictureURL(String userId) {
         return "https://graph.facebook.com/" + userId + "/picture?type=large";
     }
