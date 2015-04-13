@@ -1,5 +1,8 @@
 package sg.edu.nus.helper.http;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -7,11 +10,13 @@ import java.util.List;
 import retrofit.Callback;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
+import retrofit.converter.GsonConverter;
 import retrofit.mime.TypedFile;
 import sg.edu.nus.POJOs.MidiPOJO;
 import sg.edu.nus.POJOs.UserPOJO;
 
 public class MidifyRestClient {
+    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private static final String IP = "192.168.0.101";
     private static final String PORT = "9000";
     private static final String BASE_URL = "http://" + IP + ":" + PORT + "/api";
@@ -40,7 +45,9 @@ public class MidifyRestClient {
             }
         };
 
+        Gson gson = new GsonBuilder().setDateFormat(DATE_FORMAT).create();
         RestAdapter restAdapter = new RestAdapter.Builder()
+                .setConverter(new GsonConverter(gson))
                 .setLogLevel(RestAdapter.LogLevel.FULL)
                 .setEndpoint(BASE_URL)
                 .setRequestInterceptor(requestInterceptor)

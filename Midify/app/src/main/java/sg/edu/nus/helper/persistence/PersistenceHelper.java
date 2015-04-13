@@ -23,7 +23,7 @@ public class PersistenceHelper {
                 Context.MODE_PRIVATE);
         String serializedDataFromPreferences = midiPreferences.getString(Constant.MIDI_PREFS_KEY, null);
         if (serializedDataFromPreferences == null) {
-            System.out.print("Cannot find the midi list. System will return an empty list");
+            System.out.println("Cannot find the midi list. System will return an empty list");
             return new ArrayList<MidiPOJO>();
         }
         Type midiListType = new TypeToken<List<MidiPOJO>>(){}.getType();

@@ -25,6 +25,6 @@ public class InitTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPostExecute(Void test) {
-        Toast.makeText(delegate.getContext(), "Finish initializing",Toast.LENGTH_SHORT);
+
     }
 }

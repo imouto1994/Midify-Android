@@ -3,21 +3,29 @@ package sg.edu.nus.midify.record;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+
+import sg.edu.nus.midify.R;
+
 public class ConvertTask extends AsyncTask<Void, Void, Void> {
 
     private ConvertTaskDelegate delegate;
+    private MaterialDialog progressDialog;
 
-    public ConvertTask (ConvertTaskDelegate delegate) {
+    public ConvertTask (ConvertTaskDelegate delegate, MaterialDialog dialog) {
         this.delegate = delegate;
+        this.progressDialog = dialog;
     }
 
     @Override
     protected Void doInBackground(Void... arg0) {
+
+
         //Converting PCM to WAV
-        this.delegate.convertPcmToWav();
+        this.delegate.convertPcmToWav(progressDialog);
 
         // Converting WAV to MIDI
-        this.delegate.convertWavToMidi();
+        this.delegate.convertWavToMidi(progressDialog);
 
         return null;
     }
@@ -25,9 +33,7 @@ public class ConvertTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected void onPostExecute(Void test) {
         //Populating Midi Notes
-        Toast.makeText(delegate.getContext(),
-                "Successfully converting to MIDI notes", Toast.LENGTH_SHORT).show();
-        System.out.println("Start populating...");
+        progressDialog.dismiss();
         this.delegate.populateMidiNotes();
     }
 }

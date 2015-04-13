@@ -8,6 +8,7 @@ import retrofit.http.GET;
 import retrofit.http.Multipart;
 import retrofit.http.POST;
 import retrofit.http.Part;
+import retrofit.http.Query;
 import retrofit.mime.TypedFile;
 import sg.edu.nus.POJOs.MidiPOJO;
 import sg.edu.nus.POJOs.UserPOJO;
@@ -23,6 +24,10 @@ public interface MidifyService {
     @POST("/midi/upload")
     void uploadMidi(@Part("midi") TypedFile midiFile, @Part("title") String title,
                     Callback<MidiPOJO> callback);
+
+    // Retrieve MIDIs for user
+    @GET("/midi/user")
+    void retrieveMidiForUser(@Query("userId") String userId, Callback<List<MidiPOJO>> callback);
 
     // Retrieve friends
     @GET("/facebook/friends")

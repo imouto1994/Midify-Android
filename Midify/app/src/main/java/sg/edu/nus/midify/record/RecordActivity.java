@@ -5,11 +5,16 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.AudioFormat;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import java.io.File;
@@ -127,7 +132,12 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
 
     @Override
     public void convertPCMToMidi() {
-        ConvertTask task = new ConvertTask(this);
+        // Show progress dialog
+        MaterialDialog progressDialog = new MaterialDialog.Builder(this)
+                .title(R.string.dialog_convert_progress_title)
+                .progress(true, 0)
+                .show();
+        ConvertTask task = new ConvertTask(this, progressDialog);
         task.execute();
     }
 
@@ -135,7 +145,9 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
     // CONVERT TASK DELEGATE
     //=============================================================================================
     @Override
-    public void convertPcmToWav() {
+    public void convertPcmToWav(MaterialDialog progressDialog) {
+        progressDialog.setContent(getText(R.string.dialog_wav_convert_progress_content));
+
         int bitsPerSampleInt = AudioFormat.ENCODING_PCM_16BIT;
         int bitsPerSample = 16;
         switch (bitsPerSampleInt) {
@@ -157,7 +169,9 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
     }
 
     @Override
-    public void convertWavToMidi() {
+    public void convertWavToMidi(MaterialDialog progressDialog) {
+        progressDialog.setContent(getText(R.string.dialog_midi_convert_progress_content));
+
         int bitsPerSampleInt = AudioFormat.ENCODING_PCM_16BIT;
         int bitsPerSample = 16;
         switch (bitsPerSampleInt) {
@@ -201,24 +215,52 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
                 midiNotes.remove(i--);
             }
         }
-        new MaterialDialog.Builder(this)
-                .title(R.string.dialog_midi_name_input_title)
-                .content(R.string.dialog_midi_name_input_content)
-                .input(R.string.dialog_midi_name_input_hint,
-                        R.string.dialog_midi_name_input_prefill,
-                        new MaterialDialog.InputCallback() {
 
+        MaterialDialog uploadDialog = new MaterialDialog.Builder(this)
+                .title(R.string.dialog_midi_name_input_title)
+                .customView(R.layout.dialog_create_midi, true)
+                .positiveText(R.string.dialog_upload_action_button)
+                .negativeText(R.string.dialog_cancel_action_button)
+                .callback(new MaterialDialog.ButtonCallback() {
                     @Override
-                    public void onInput(MaterialDialog materialDialog, CharSequence charSequence) {
-                        materialDialog.dismiss();
-                        createMidiFile(charSequence.toString());
+                    public void onPositive(MaterialDialog dialog) {
+                        super.onPositive(dialog);
+                        dialog.dismiss();
+                        EditText midiFileNameInput = (EditText) dialog.getCustomView().findViewById(R.id.dialog_midi_name_input);
+                        RadioGroup isPublicRadioGroup = (RadioGroup) dialog.getCustomView().findViewById(R.id.dialog_radio_group);
+                        boolean isPublicMidiFile = isPublicRadioGroup.getCheckedRadioButtonId() == R.id.dialog_radio_button_public;
+                        createMidiFile(midiFileNameInput.getText().toString(), isPublicMidiFile);
                     }
 
-                }).show();
+                    @Override
+                    public void onNegative(MaterialDialog dialog) {
+                        super.onNegative(dialog);
+                        dialog.dismiss();
+                    }
+                }).build();
 
+        final View positiveAction = uploadDialog.getActionButton(DialogAction.POSITIVE);
+        EditText midiFileNameInput = (EditText) uploadDialog.getCustomView().findViewById(R.id.dialog_midi_name_input);
+        midiFileNameInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                positiveAction.setEnabled(s.toString().trim().length() > 0);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        uploadDialog.show();
+        positiveAction.setEnabled(false);
     }
 
-    private void createMidiFile(String midiFileName) {
+    private void createMidiFile(String midiFileName, boolean isPublicMidiFile) {
 
         // Create MIDI tracks
         MidiTrack tempoTrack = new MidiTrack();
@@ -263,16 +305,21 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
 
         String facebookUserId = PersistenceHelper.getFacebookUserId(this);
 
-        MidiPOJO newMidi = MidiPOJO.createLocalMidiWithoutId(midiFileName, filePath, facebookUserId);
+        final MidiPOJO newMidi = MidiPOJO.createLocalMidiWithoutId(midiFileName, filePath, facebookUserId);
         midiList.add(newMidi);
         PersistenceHelper.saveMidiList(this, midiList);
         if (ConnectionHelper.checkNetworkConnection(this)) {
+            final Context context = this;
             try {
                 MidifyRestClient.instance()
                         .uploadMidi(filePath, midiFileName, new Callback<MidiPOJO>() {
                     @Override
                     public void success(MidiPOJO midiPOJO, Response response) {
                         System.out.println("CC");
+                        newMidi.setFileId(midiPOJO.getFileId());
+                        newMidi.setEditedTime(midiPOJO.getEditedTime());
+                        newMidi.setServerFilePath(midiPOJO.getServerFilePath());
+                        PersistenceHelper.saveMidiList(context, midiList);
                     }
 
                     @Override

@@ -45,7 +45,6 @@ public class RecordTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPostExecute(Void test) {
-        Toast.makeText(this.delegate.getContext(), "Finish recording", Toast.LENGTH_SHORT).show();
         this.delegate.convertPCMToMidi();
     }
 }
