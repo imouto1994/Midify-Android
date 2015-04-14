@@ -17,7 +17,7 @@ import sg.edu.nus.POJOs.UserPOJO;
 
 public class MidifyRestClient {
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-    private static final String IP = "192.168.0.101";
+    private static final String IP = "172.28.180.188";
     private static final String PORT = "9000";
     private static final String BASE_URL = "http://" + IP + ":" + PORT + "/api";
 
@@ -60,15 +60,20 @@ public class MidifyRestClient {
         midifyApi.retrieveFriends(callback);
     }
 
+    // RETRIEVE MIDIS FOR USER
+    public void getMidisForUser(String userId, Callback<List<MidiPOJO>> callback) {
+        midifyApi.retrieveMidiForUser(userId, callback);
+    }
+
     // UPLOAD ACTION
-    public void uploadMidi(String filePath, String title,
+    public void uploadMidi(String filePath, String title, boolean isPublic,
                            Callback<MidiPOJO> callback) throws IOException {
         File file = new File(filePath);
         if (!file.exists()) {
             throw new IOException("File does not exist");
         }
         TypedFile uploadFile = new TypedFile("application/octet-stream", file);
-        midifyApi.uploadMidi(uploadFile, title, callback);
+        midifyApi.uploadMidi(uploadFile, title, isPublic, callback);
     }
 
     // AUTHENTICATE ACTION

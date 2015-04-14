@@ -275,14 +275,12 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
         tempoTrack.insertEvent(t);
 
         // Second track is for note map
-        long totalDuration = 0;
         for (int i = 0; i < midiNotes.size(); i++) {
             Note note = midiNotes.get(i);
             int channel = DEFAULT_CHANNEL;
             int pitch = note.note;
             int velocity = note.vel;
             long duration = (long) note.time;
-            totalDuration += duration;
             long tick = i * 480;
 
             noteTrack.insertNote(channel, pitch, velocity, tick, duration);
@@ -296,6 +294,7 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
         MidiFile midiFile = new MidiFile(MidiFile.DEFAULT_RESOLUTION, tracks);
         String filePath = Constant.BASE_FILE_DIR + midiFileName
                         + String.valueOf(System.currentTimeMillis() / 1000 + ".mid");
+        Log.i(Constant.RECORD_TAG, filePath);
         File output = new File(filePath);
         try {
             midiFile.writeToFile(output);
@@ -305,17 +304,17 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
 
         String facebookUserId = PersistenceHelper.getFacebookUserId(this);
 
-        final MidiPOJO newMidi = MidiPOJO.createLocalMidiWithoutId(midiFileName, filePath, facebookUserId);
+        final MidiPOJO newMidi = MidiPOJO.
+                createLocalMidiWithoutId(midiFileName, filePath, facebookUserId, isPublicMidiFile);
         midiList.add(newMidi);
         PersistenceHelper.saveMidiList(this, midiList);
         if (ConnectionHelper.checkNetworkConnection(this)) {
             final Context context = this;
             try {
                 MidifyRestClient.instance()
-                        .uploadMidi(filePath, midiFileName, new Callback<MidiPOJO>() {
+                        .uploadMidi(filePath, midiFileName, isPublicMidiFile, new Callback<MidiPOJO>() {
                     @Override
                     public void success(MidiPOJO midiPOJO, Response response) {
-                        System.out.println("CC");
                         newMidi.setFileId(midiPOJO.getFileId());
                         newMidi.setEditedTime(midiPOJO.getEditedTime());
                         newMidi.setServerFilePath(midiPOJO.getServerFilePath());
@@ -324,7 +323,7 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
 
                     @Override
                     public void failure(RetrofitError error) {
-                        System.out.println("URL: " + error.getUrl());
+                        Log.e(Constant.REQUEST_TAG, "Reuqest Failed for URL: " + error.getUrl());
                     }
                 });
             } catch (IOException e) {

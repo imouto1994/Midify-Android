@@ -23,7 +23,7 @@ public interface MidifyService {
     @Multipart
     @POST("/midi/upload")
     void uploadMidi(@Part("midi") TypedFile midiFile, @Part("title") String title,
-                    Callback<MidiPOJO> callback);
+                    @Part("isPublic") boolean isPublic, Callback<MidiPOJO> callback);
 
     // Retrieve MIDIs for user
     @GET("/midi/user")

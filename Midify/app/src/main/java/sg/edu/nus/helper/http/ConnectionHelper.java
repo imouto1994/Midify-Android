@@ -35,7 +35,7 @@ public class ConnectionHelper {
     }
 
     public static String getFacebookProfilePictureURL(String userId) {
-        return "https://graph.facebook.com/" + userId + "/picture?type=large";
+        return "https://graph.facebook.com/" + userId + "/picture?width=9999";
     }
 
 }

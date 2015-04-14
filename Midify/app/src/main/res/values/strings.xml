@@ -13,6 +13,7 @@
 
     <!-- STRINGS -->
     <string name="text_record_button">Record</string>
+    <string name="text_play_button">Play</string>
 
     <!-- MIDI DIALOGS -->
     <string name="dialog_midi_name_input_title">Create MIDI</string>

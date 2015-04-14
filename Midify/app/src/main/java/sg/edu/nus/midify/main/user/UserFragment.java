@@ -74,6 +74,7 @@ public class UserFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         RecyclerView.ItemDecoration itemDecoration =
                 new DividerItemDecoration(this.getActivity(), DividerItemDecoration.VERTICAL_LIST);
         userList.addItemDecoration(itemDecoration);
+        // Configure item animation
         userList.setItemAnimator(new DefaultItemAnimator());
     }
 

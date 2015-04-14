@@ -34,20 +34,23 @@ public class MidiPOJO {
     @SerializedName("editedTime")
     private Date editedTime;
 
-    public static MidiPOJO createLocalMidi(String fileName, String filePath, String fileId, String userId) {
+    public static MidiPOJO createLocalMidi(String fileName, String filePath, String fileId,
+                                           String userId, boolean isPublic) {
         MidiPOJO instance = new MidiPOJO();
         instance.fileName = fileName;
         instance.localFilePath = filePath;
         instance.fileId = fileId;
         instance.ownerId = userId;
         instance.userId = userId;
+        instance.isPublic = isPublic;
         instance.editedTime = new Date();
 
         return instance;
     }
 
-    public static MidiPOJO createLocalMidiWithoutId(String fileName, String filePath, String userId) {
-        return createLocalMidi(fileName, filePath, UNDEFINED, userId);
+    public static MidiPOJO createLocalMidiWithoutId(String fileName, String filePath,
+                                                    String userId, boolean isPublic) {
+        return createLocalMidi(fileName, filePath, UNDEFINED, userId, isPublic);
     }
 
     public String getFileName() {
