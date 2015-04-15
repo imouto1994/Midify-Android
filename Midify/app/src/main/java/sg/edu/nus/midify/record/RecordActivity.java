@@ -135,6 +135,7 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
         // Show progress dialog
         MaterialDialog progressDialog = new MaterialDialog.Builder(this)
                 .title(R.string.dialog_convert_progress_title)
+                .content(R.string.dialog_midi_convert_progress_content)
                 .progress(true, 0)
                 .show();
         ConvertTask task = new ConvertTask(this, progressDialog);
@@ -146,8 +147,6 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
     //=============================================================================================
     @Override
     public void convertPcmToWav(MaterialDialog progressDialog) {
-        progressDialog.setContent(getText(R.string.dialog_wav_convert_progress_content));
-
         int bitsPerSampleInt = AudioFormat.ENCODING_PCM_16BIT;
         int bitsPerSample = 16;
         switch (bitsPerSampleInt) {
@@ -170,8 +169,6 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
 
     @Override
     public void convertWavToMidi(MaterialDialog progressDialog) {
-        progressDialog.setContent(getText(R.string.dialog_midi_convert_progress_content));
-
         int bitsPerSampleInt = AudioFormat.ENCODING_PCM_16BIT;
         int bitsPerSample = 16;
         switch (bitsPerSampleInt) {

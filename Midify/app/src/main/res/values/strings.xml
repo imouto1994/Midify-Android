@@ -18,8 +18,7 @@
     <!-- MIDI DIALOGS -->
     <string name="dialog_midi_name_input_title">Create MIDI</string>
     <string name="dialog_convert_progress_title">Midi Converting</string>
-    <string name="dialog_wav_convert_progress_content">Converting from PCM to WAV</string>
-    <string name="dialog_midi_convert_progress_content">Converting from WAV to MIDI</string>
+    <string name="dialog_midi_convert_progress_content">Converting from audio to MIDI</string>
     <string name="dialog_midi_file_name_title">Midi Name</string>
     <string name="dialog_radio_button_public">Public</string>
     <string name="dialog_radio_button_private">Private</string>
