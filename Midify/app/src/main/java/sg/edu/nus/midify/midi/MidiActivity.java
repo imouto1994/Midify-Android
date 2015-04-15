@@ -12,6 +12,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -19,7 +20,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -39,6 +42,7 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
     // Private Variables
     private boolean isLocalUser;
     private String userId;
+    private List<MidiPOJO> localMidis;
 
     // UI Controls
     private SwipeRefreshLayout refreshLayout;
@@ -75,6 +79,13 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
                 android.R.color.holo_blue_dark,
                 android.R.color.holo_orange_dark);
 
+        // Show indicator initially
+        refreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                refreshLayout.setRefreshing(true);
+            }
+        });
 
         // Initialize recycler view
         midiList = (RecyclerView) findViewById(R.id.midis_list);
@@ -107,6 +118,9 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
         this.userId = userId;
         String localUserId = PersistenceHelper.getFacebookUserId(this);
         isLocalUser = localUserId.equals(this.userId);
+        if (isLocalUser) {
+            localMidis = PersistenceHelper.getMidiList(this);
+        }
     }
 
     @Override
@@ -116,9 +130,23 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
 
     private void refreshList() {
         if (ConnectionHelper.checkNetworkConnection(this)) {
+            final Context context = this;
             MidifyRestClient.instance().getMidisForUser(userId, new Callback<List<MidiPOJO>>() {
                 @Override
                 public void success(List<MidiPOJO> midiPOJOs, Response response) {
+                    if (isLocalUser) {
+                        Map<String, MidiPOJO> midiMap = new HashMap<>();
+                        for (MidiPOJO midi : midiPOJOs) {
+                            midiMap.put(midi.getFileId(), midi);
+                        }
+                        for (MidiPOJO localMidi: localMidis) {
+                            if (localMidi.getFileId() != null && midiMap.containsKey(localMidi.getFileId())) {
+                                midiMap.get(localMidi.getFileId()).setLocalFilePath(localMidi.getLocalFilePath());
+                            } else {
+                                midiPOJOs.add(localMidi);
+                            }
+                        }
+                    }
                     listAdapter.refreshMidiList(midiPOJOs);
                     refreshLayout.setRefreshing(false);
                 }
@@ -126,8 +154,12 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
                 @Override
                 public void failure(RetrofitError error) {
                     Log.e(Constant.REQUEST_TAG, error.getMessage());
-                    listAdapter.refreshMidiList(new ArrayList<MidiPOJO>());
-                    refreshLayout.setRefreshing(false);
+                    if (isLocalUser) {
+                        List<MidiPOJO> localMidiList = PersistenceHelper.getMidiList(context);
+                        listAdapter.refreshMidiList(localMidiList);
+                    } else {
+                        listAdapter.refreshMidiList(new ArrayList<MidiPOJO>());
+                    }
                 }
             });
         } else {
@@ -148,7 +180,6 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
 
     @Override
     public void play(String filePath) {
-        System.out.println(filePath);
         File midiFile = new File(filePath);
         if (!midiFile.exists()) {
             Log.e(Constant.MEDIA_TAG, "MIDI file cannot be found for playback");

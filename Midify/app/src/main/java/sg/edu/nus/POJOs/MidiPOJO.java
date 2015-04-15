@@ -50,7 +50,15 @@ public class MidiPOJO {
 
     public static MidiPOJO createLocalMidiWithoutId(String fileName, String filePath,
                                                     String userId, boolean isPublic) {
-        return createLocalMidi(fileName, filePath, UNDEFINED, userId, isPublic);
+        return createLocalMidi(fileName, filePath, UNDEFINED + System.currentTimeMillis() / 1000, userId, isPublic);
+    }
+
+    public boolean isOnlyLocal() {
+        return this.getFileId().startsWith(UNDEFINED);
+    }
+
+    public boolean isOnlyRemote() {
+        return this.getLocalFilePath() == null;
     }
 
     public String getFileName() {

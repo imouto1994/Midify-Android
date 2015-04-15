@@ -1,10 +1,16 @@
 package sg.edu.nus.midify.midi;
 
+import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.joanzapata.android.iconify.IconDrawable;
+import com.joanzapata.android.iconify.Iconify;
+import com.melnykov.fab.FloatingActionButton;
 
 import sg.edu.nus.midify.R;
 
@@ -14,19 +20,27 @@ public class MidiViewHolder extends RecyclerView.ViewHolder implements View.OnCl
     // UI Controls
     private ImageView profilePictureView;
     private TextView midiNameTextView;
-    private Button playButton;
+    private FloatingActionButton playButton;
+    private Context context;
 
     // Delegate
     private ViewHolderOnClick delegate;
 
-    public MidiViewHolder(View itemView, ViewHolderOnClick delegate) {
+    public MidiViewHolder(View itemView, ViewHolderOnClick delegate, Context context) {
         super(itemView);
         this.delegate = delegate;
 
         // Assign UI Controls
         profilePictureView = (ImageView) itemView.findViewById(R.id.profile_picture);
+
         midiNameTextView = (TextView) itemView.findViewById(R.id.midi_name);
-        playButton = (Button) itemView.findViewById(R.id.play_button);
+
+        playButton = (FloatingActionButton) itemView.findViewById(R.id.play_button);
+        IconDrawable icon = new IconDrawable(context, Iconify.IconValue.fa_play);
+        icon.color(Color.WHITE);
+        icon.sizeDp(24);
+        playButton.setImageDrawable(icon);
+        playButton.setShadow(false);
         playButton.setOnClickListener(this);
     }
 
@@ -42,7 +56,7 @@ public class MidiViewHolder extends RecyclerView.ViewHolder implements View.OnCl
         return this.midiNameTextView;
     }
 
-    public Button getPlayButton() {
+    public FloatingActionButton getPlayButton() {
         return this.playButton;
     }
 

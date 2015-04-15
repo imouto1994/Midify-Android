@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/midi_card_view"
     android:layout_width="match_parent"
@@ -16,23 +17,36 @@
         <ImageView
             android:id="@+id/profile_picture"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="175dp"
             android:layout_alignParentTop="true"
             android:scaleType="centerCrop" />
 
         <TextView
             android:id="@+id/midi_name"
+            android:textSize="16sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/profile_picture"/>
+            android:layout_below="@+id/profile_picture"
+            android:layout_margin="10dp"/>
 
-        <Button
+        <TextView
+            android:id="@+id/midi_created_time"
+            android:textSize="16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/midi_created_time"
+            android:layout_margin="10dp"/>
+
+        <com.melnykov.fab.FloatingActionButton
             android:id="@+id/play_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/text_play_button"
             android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true" />
+            android:layout_centerHorizontal="true"
+            android:layout_margin="16dp"
+            fab:fab_colorNormal="@color/ColorPrimary"
+            fab:fab_colorPressed="@color/ColorPrimaryDark"
+            fab:fab_colorRipple="@color/White" />
 
     </RelativeLayout>
 

@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import sg.edu.nus.POJOs.MidiPOJO;
@@ -28,7 +30,7 @@ public class MidiListAdapter extends RecyclerView.Adapter<MidiViewHolder> implem
                 .from(parent.getContext())
                 .inflate(R.layout.item_midi, parent, false);
 
-        return new MidiViewHolder(itemView, this);
+        return new MidiViewHolder(itemView, this, delegate.getContext());
     }
 
     @Override
@@ -51,6 +53,12 @@ public class MidiListAdapter extends RecyclerView.Adapter<MidiViewHolder> implem
     }
 
     public void refreshMidiList(List<MidiPOJO> newList) {
+        Collections.sort(newList, new Comparator<MidiPOJO>() {
+            @Override
+            public int compare(MidiPOJO lhs, MidiPOJO rhs) {
+                return -1 * lhs.getEditedTime().compareTo(rhs.getEditedTime());
+            }
+        });
         this.midiList.clear();
         this.midiList.addAll(newList);
         notifyDataSetChanged();
@@ -60,7 +68,13 @@ public class MidiListAdapter extends RecyclerView.Adapter<MidiViewHolder> implem
     public void onPlayButtonClick(View v, String midiId) {
         for (MidiPOJO midi : midiList) {
             if (midi.getFileId().equals(midiId)) {
-                delegate.play(midi.getLocalFilePath());
+                System.out.println(midi.getLocalFilePath());
+                if (!midi.isOnlyRemote()) {
+                    delegate.play(midi.getLocalFilePath());
+                } else {
+                    // Download the midi (This case is mainly for fork feature)
+                }
+
                 break;
             }
         }

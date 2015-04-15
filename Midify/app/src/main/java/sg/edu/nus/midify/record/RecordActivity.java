@@ -41,7 +41,7 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
 
     private static final String RECORD_TAG = "record";
     private static final String STOP_RECORD_TAG = "stop";
-    private static final int DEFAULT_TEMPO = 228;
+    private static final int DEFAULT_TEMPO = 120;
     private static final int DEFAULT_CHANNEL = 0;
 
     // UI Controls
@@ -164,7 +164,7 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
         pcmToWavConverter.setBitPerSample(bitsPerSample);
         pcmToWavConverter.setChannels(1);
         pcmToWavConverter.setSamplerate(11025);
-        pcmToWavConverter.convertPcm2wav();
+        //pcmToWavConverter.convertPcm2wav();
     }
 
     @Override
@@ -192,11 +192,11 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
         //Set Engine Params
         wavToMidiConverter.setBuffer_size(512);
         wavToMidiConverter.setOverlap_size(256);
-        wavToMidiConverter.setSilence(-90);
-        wavToMidiConverter.setThreshold(0.30f);
-        wavToMidiConverter.setType_onset("kl");
-        wavToMidiConverter.setType_onset2("complex");
-        wavToMidiConverter.setType_pitch("yinfft");
+        wavToMidiConverter.setSilence(-75);
+        wavToMidiConverter.setThreshold(0.75f);
+        wavToMidiConverter.setType_onset("complex");
+        wavToMidiConverter.setType_onset2("");
+        wavToMidiConverter.setType_pitch("mcomb");
         wavToMidiConverter.setAveraging((float) 1.0);
 
         // Start converting
@@ -223,8 +223,10 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
                     public void onPositive(MaterialDialog dialog) {
                         super.onPositive(dialog);
                         dialog.dismiss();
-                        EditText midiFileNameInput = (EditText) dialog.getCustomView().findViewById(R.id.dialog_midi_name_input);
-                        RadioGroup isPublicRadioGroup = (RadioGroup) dialog.getCustomView().findViewById(R.id.dialog_radio_group);
+                        EditText midiFileNameInput = (EditText) dialog.getCustomView()
+                                .findViewById(R.id.dialog_midi_name_input);
+                        RadioGroup isPublicRadioGroup = (RadioGroup) dialog.getCustomView()
+                                .findViewById(R.id.dialog_radio_group);
                         boolean isPublicMidiFile = isPublicRadioGroup.getCheckedRadioButtonId() == R.id.dialog_radio_button_public;
                         createMidiFile(midiFileNameInput.getText().toString(), isPublicMidiFile);
                     }
@@ -277,8 +279,8 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
             int channel = DEFAULT_CHANNEL;
             int pitch = note.note;
             int velocity = note.vel;
-            long duration = (long) note.time;
-            long tick = i * 480;
+            long duration = 75;
+            long tick = (long) (note.time * 1000);
 
             noteTrack.insertNote(channel, pitch, velocity, tick, duration);
         }
@@ -290,7 +292,7 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
 
         MidiFile midiFile = new MidiFile(MidiFile.DEFAULT_RESOLUTION, tracks);
         String filePath = Constant.BASE_FILE_DIR + midiFileName
-                        + String.valueOf(System.currentTimeMillis() / 1000 + ".mid");
+                        + System.currentTimeMillis() / 1000 + ".mid";
         Log.i(Constant.RECORD_TAG, filePath);
         File output = new File(filePath);
         try {
@@ -306,7 +308,7 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
         midiList.add(newMidi);
         PersistenceHelper.saveMidiList(this, midiList);
         if (ConnectionHelper.checkNetworkConnection(this)) {
-            final Context context = this;
+            final Activity recordInstance = this;
             try {
                 MidifyRestClient.instance()
                         .uploadMidi(filePath, midiFileName, isPublicMidiFile, new Callback<MidiPOJO>() {
@@ -315,7 +317,8 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
                         newMidi.setFileId(midiPOJO.getFileId());
                         newMidi.setEditedTime(midiPOJO.getEditedTime());
                         newMidi.setServerFilePath(midiPOJO.getServerFilePath());
-                        PersistenceHelper.saveMidiList(context, midiList);
+                        PersistenceHelper.saveMidiList(recordInstance, midiList);
+                        recordInstance.finish();
                     }
 
                     @Override
