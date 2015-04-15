@@ -54,7 +54,6 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
     private WavToMidiConverter wavToMidiConverter;
 
     // Persistence Data
-    private SharedPreferences midiPreferences;
     private List<MidiPOJO> midiList;
 
     @Override
@@ -96,18 +95,6 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
     //=============================================================================================
     // INIT TASK DELEGATE
     //=============================================================================================
-
-    /**
-     * Load the JNI Native Libs
-     */
-    @Override
-    public void loadNativeLibs() {
-        try {
-            System.loadLibrary("atm");
-        } catch (Exception ex) {
-            Log.e(Constant.JNI_TAG, "Failed to load native library: " + ex);
-        }
-    }
 
     /**
      * Initialize the two necessary converters

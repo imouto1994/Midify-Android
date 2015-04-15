@@ -13,10 +13,6 @@ public class InitTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected Void doInBackground(Void... arg0) {
-
-        //Install libs
-        delegate.loadNativeLibs();
-
         //Init ATM Converters
         delegate.initializeConverters();
 

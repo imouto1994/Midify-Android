@@ -6,7 +6,5 @@ public interface InitTaskDelegate {
 
     public Context getContext();
 
-    public void loadNativeLibs();
-
     public void initializeConverters();
 }
