@@ -11,6 +11,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import sg.edu.nus.helper.Constant;
+
 /**
  * TASK FOR RECORDING AUDIO IN PCM FORMAT
  */
@@ -26,9 +28,9 @@ public class Recorder implements Runnable {
     private final Object mutex = new Object();
     // Changing the sample resolution changes sample type. byte vs. short.
     // Default settings
-    private int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
-    private int frequency = 11025;
-    private int channelConfiguration = AudioFormat.CHANNEL_IN_MONO; // CHANNEL_CONFIGURATION_MONO
+    private int audioEncoding = Constant.AUDIO_ENCODING_CONFIGURATION;
+    private int frequency = Constant.AUDIO_SAMPLE_RATE_CONFIGURATION;
+    private int channelConfiguration = Constant.AUDIO_CHANNEL_CONFIGURATION; // CHANNEL_CONFIGURATION_MONO
 
     /**
      * Set Audio Encoding
@@ -101,7 +103,7 @@ public class Recorder implements Runnable {
         int bufferSize = AudioRecord.getMinBufferSize(this.getFrequency(),
                 this.getChannelConfiguration(), this.getAudioEncoding());
         AudioRecord recordInstance = new AudioRecord(
-                MediaRecorder.AudioSource.MIC, this.getFrequency(), this.getChannelConfiguration(), this.getAudioEncoding(),
+                MediaRecorder.AudioSource.DEFAULT, this.getFrequency(), this.getChannelConfiguration(), this.getAudioEncoding(),
                 bufferSize);
         short[] tempBuffer = new short[bufferSize];
         recordInstance.startRecording();

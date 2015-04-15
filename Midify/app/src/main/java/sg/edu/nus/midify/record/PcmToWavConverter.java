@@ -1,5 +1,7 @@
 package sg.edu.nus.midify.record;
 
+import sg.edu.nus.helper.Constant;
+
 /**
  * Created by Youn on 31/3/15.
  */
@@ -7,9 +9,9 @@ public class PcmToWavConverter {
     private final String srcfilename;
     private final String destfilename;
     //Default Settings
-    private int samplerate = 11025;
-    private int channels = 1;
-    private int bitspersample = 16;
+    private int samplerate = Constant.AUDIO_SAMPLE_RATE_CONFIGURATION;
+    private int channels = Constant.AUDIO_NUMBER_OF_CHANNELS;
+    private int bitspersample = Constant.BITS_PER_SAMPLE_CONFIGURATION;
 
     /**
      * Constructor

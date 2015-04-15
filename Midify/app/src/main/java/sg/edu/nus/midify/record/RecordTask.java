@@ -18,7 +18,8 @@ public class RecordTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected Void doInBackground(Void... arg0) {
-        Recorder recorderInstance = new Recorder(AudioFormat.ENCODING_PCM_16BIT, 11025, 1);
+        Recorder recorderInstance = new Recorder(Constant.AUDIO_ENCODING_CONFIGURATION,
+                Constant.AUDIO_SAMPLE_RATE_CONFIGURATION, Constant.AUDIO_CHANNEL_CONFIGURATION);
         this.delegate.setRecorder(recorderInstance);
 
         Thread th = new Thread(recorderInstance);

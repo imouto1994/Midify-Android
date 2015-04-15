@@ -147,53 +147,24 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
     //=============================================================================================
     @Override
     public void convertPcmToWav(MaterialDialog progressDialog) {
-        int bitsPerSampleInt = AudioFormat.ENCODING_PCM_16BIT;
-        int bitsPerSample = 16;
-        switch (bitsPerSampleInt) {
-            case AudioFormat.ENCODING_DEFAULT:
-                bitsPerSample = 16;
-                break;
-            case AudioFormat.ENCODING_PCM_8BIT:
-                bitsPerSample = 8;
-                break;
-            case AudioFormat.ENCODING_PCM_16BIT:
-                bitsPerSample = 16;
-                break;
-
-        }
-        pcmToWavConverter.setBitPerSample(bitsPerSample);
-        pcmToWavConverter.setChannels(1);
-        pcmToWavConverter.setSamplerate(11025);
+        pcmToWavConverter.setBitPerSample(Constant.BITS_PER_SAMPLE_CONFIGURATION);
+        pcmToWavConverter.setChannels(Constant.AUDIO_NUMBER_OF_CHANNELS);
+        pcmToWavConverter.setSamplerate(Constant.AUDIO_SAMPLE_RATE_CONFIGURATION);
         //pcmToWavConverter.convertPcm2wav();
     }
 
     @Override
     public void convertWavToMidi(MaterialDialog progressDialog) {
-        int bitsPerSampleInt = AudioFormat.ENCODING_PCM_16BIT;
-        int bitsPerSample = 16;
-        switch (bitsPerSampleInt) {
-            case AudioFormat.ENCODING_DEFAULT:
-                bitsPerSample = 16;
-                break;
-            case AudioFormat.ENCODING_PCM_8BIT:
-                bitsPerSample = 8;
-                break;
-            case AudioFormat.ENCODING_PCM_16BIT:
-                bitsPerSample = 16;
-                break;
-
-        }
-
         // Set Wav Params
-        wavToMidiConverter.setBitspersample(bitsPerSample);
-        wavToMidiConverter.setChannels(1);
-        wavToMidiConverter.setSamplerate(11025);
+        wavToMidiConverter.setBitspersample(Constant.BITS_PER_SAMPLE_CONFIGURATION);
+        wavToMidiConverter.setChannels(Constant.AUDIO_NUMBER_OF_CHANNELS);
+        wavToMidiConverter.setSamplerate(Constant.AUDIO_SAMPLE_RATE_CONFIGURATION);
 
         //Set Engine Params
-        wavToMidiConverter.setBuffer_size(512);
+        wavToMidiConverter.setBuffer_size(1024);
         wavToMidiConverter.setOverlap_size(256);
-        wavToMidiConverter.setSilence(-75);
-        wavToMidiConverter.setThreshold(0.75f);
+        wavToMidiConverter.setSilence(-70);
+        wavToMidiConverter.setThreshold(0.7f);
         wavToMidiConverter.setType_onset("complex");
         wavToMidiConverter.setType_onset2("");
         wavToMidiConverter.setType_pitch("mcomb");

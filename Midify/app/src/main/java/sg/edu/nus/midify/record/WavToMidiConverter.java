@@ -3,6 +3,8 @@ package sg.edu.nus.midify.record;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import sg.edu.nus.helper.Constant;
+
 /**
  * Created by Youn on 31/3/15.
  */
@@ -10,9 +12,9 @@ public class WavToMidiConverter {
     private String srcfilename;
     private String destfilename;
     //ATM Default Settings
-    private int samplerate = 11025;
-    private int channels = 1;
-    private int bitspersample = 16;
+    private int samplerate = Constant.AUDIO_SAMPLE_RATE_CONFIGURATION;
+    private int channels = Constant.AUDIO_NUMBER_OF_CHANNELS;
+    private int bitspersample = Constant.BITS_PER_SAMPLE_CONFIGURATION;
     //Aubio Specific Algorithms and settings
     private float threshold = (float) 0.3;
     private float silence = (float) -90.;

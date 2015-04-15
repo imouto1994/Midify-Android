@@ -1,5 +1,6 @@
 package sg.edu.nus.helper;
 
+import android.media.AudioFormat;
 import android.os.Environment;
 
 public class Constant {
@@ -30,5 +31,12 @@ public class Constant {
 
     // Intent params
     public static String INTENT_PARAM_USER_ID = "userId";
+
+    // Audio Record Configurations
+    public static int AUDIO_CHANNEL_CONFIGURATION = AudioFormat.CHANNEL_IN_MONO;
+    public static int AUDIO_NUMBER_OF_CHANNELS = 1;
+    public static int AUDIO_ENCODING_CONFIGURATION = AudioFormat.ENCODING_PCM_16BIT;
+    public static int AUDIO_SAMPLE_RATE_CONFIGURATION = 44100;
+    public static int BITS_PER_SAMPLE_CONFIGURATION = 16;
 
 }
