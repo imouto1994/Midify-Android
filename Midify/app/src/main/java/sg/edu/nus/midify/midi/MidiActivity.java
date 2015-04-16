@@ -129,7 +129,7 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
     }
 
     private void refreshList() {
-        if (ConnectionHelper.checkNetworkConnection(this)) {
+        if (ConnectionHelper.checkNetworkConnection()) {
             final Context context = this;
             MidifyRestClient.instance().getMidisForUser(userId, new Callback<List<MidiPOJO>>() {
                 @Override

@@ -23,12 +23,12 @@ public interface MidifyService {
     // Convert MIDI
     @Multipart
     @POST("/midi/convert")
-    void convertMidi(@Part("midi") TypedFile wavFile, @Part("title") String title,
+    void convertMidi(@Part("wav") TypedFile wavFile, @Part("title") String title,
                     @Part("isPublic") boolean isPublic, Callback<MidiPOJO> callback);
 
     // Download MIDI
     @GET("/midi/download")
-    void downloadMidi(@Query("_id") String fileId, Callback<Response> callback);
+    void downloadMidi(@Query("fileId") String fileId, Callback<Response> callback);
 
     // Retrieve MIDIs for user
     @GET("/midi/user")

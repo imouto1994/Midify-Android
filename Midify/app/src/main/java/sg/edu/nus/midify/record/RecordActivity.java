@@ -161,15 +161,16 @@ public class RecordActivity extends Activity {
         midiList.add(newMidi);
         PersistenceHelper.saveMidiList(this, midiList);
 
-        // Show progress dialog
-        final MaterialDialog progressDialog = new MaterialDialog.Builder(this)
-                .title(R.string.dialog_convert_progress_title)
-                .content(R.string.dialog_convert_progress_content_1)
-                .progress(true, 0)
-                .show();
-
         // Start converting
         if (ConnectionHelper.checkNetworkConnection()) {
+            // Show progress dialog
+            final MaterialDialog progressDialog = new MaterialDialog.Builder(this)
+                    .title(R.string.dialog_convert_progress_title)
+                    .content(R.string.dialog_convert_progress_content_1)
+                    .cancelable(false)
+                    .progress(true, 0)
+                    .show();
+
             final Activity recordInstance = this;
             MidifyRestClient.instance()
                     .convertMidi(filePath, fileName, isPublicMidiFile, new Callback<MidiPOJO>() {

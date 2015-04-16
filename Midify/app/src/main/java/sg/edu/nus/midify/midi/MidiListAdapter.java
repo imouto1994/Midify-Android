@@ -41,7 +41,7 @@ public class MidiListAdapter extends RecyclerView.Adapter<MidiViewHolder> implem
         MidiPOJO midi = midiList.get(position);
         holder.setMidiId(midi.getFileId());
         holder.getMidiNameTextView().setText(midi.getFileName());
-        if (ConnectionHelper.checkNetworkConnection(delegate.getContext())) {
+        if (ConnectionHelper.checkNetworkConnection()) {
             String profilePictureURL = ConnectionHelper.getFacebookProfilePictureURL(midi.getOwnerId());
             ConnectionHelper.downloadImage(holder.getProfilePictureView(), profilePictureURL);
         }
