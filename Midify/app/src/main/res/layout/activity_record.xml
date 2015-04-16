@@ -1,6 +1,7 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -10,13 +11,25 @@
     android:background="@color/ColorPrimary"
     tools:context="sg.edu.nus.midify.record.RecordActivity">
 
-    <Button
+    <ImageView
+        android:id="@+id/loading_disc"
+        android:layout_width="wrap_content"
+        android:layout_height="300dp"
+        android:adjustViewBounds="true"
+        android:layout_centerInParent="true"
+        android:src="@drawable/loadingdisc" />
+
+    <com.melnykov.fab.FloatingActionButton
+        android:id="@+id/record_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/record_button"
-        android:text="@string/text_record_button"
-        android:onClick="onRecordButtonClick"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_margin="16dp"
+        fab:fab_colorNormal="@color/White"
+        fab:fab_colorPressed="@color/White"
+        fab:fab_colorRipple="@color/White"
+        android:onClick="onRecordButtonClick"
+        />
 
 </RelativeLayout>

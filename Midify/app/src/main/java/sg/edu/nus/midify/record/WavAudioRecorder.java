@@ -76,6 +76,8 @@ public class WavAudioRecorder {
     // after stop() is called, this size is written to the header/data chunk in the wave file
     private int                      payloadSize;
 
+    private Thread recordingThread;
+
     /**
      *
      * Returns the state of the recorder in a WavAudioRecorder.State typed object.
@@ -91,19 +93,27 @@ public class WavAudioRecorder {
     private AudioRecord.OnRecordPositionUpdateListener updateListener = new AudioRecord.OnRecordPositionUpdateListener() {
         //	periodic updates on the progress of the record head
         public void onPeriodicNotification(AudioRecord recorder) {
-            if (State.STOPPED == state) {
-                Log.d(WavAudioRecorder.this.getClass().getName(), "recorder stopped");
-                return;
+            if (recordingThread.isAlive()) {
+                Log.e(Constant.RECORD_TAG, "The recording thread is interrupted");
             }
-            int numOfBytes = audioRecorder.read(buffer, 0, buffer.length); // read audio data to buffer
-//			Log.d(WavAudioRecorder.this.getClass().getName(), state + ":" + numOfBytes);
-            try {
-                randomAccessWriter.write(buffer); 		  // write audio data to file
-                payloadSize += buffer.length;
-            } catch (IOException e) {
-                Log.e(WavAudioRecorder.class.getName(), "Error occured in updateListener, recording is aborted");
-                e.printStackTrace();
-            }
+            recordingThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    if (State.STOPPED == state) {
+                        Log.d(WavAudioRecorder.this.getClass().getName(), "recorder stopped");
+                        return;
+                    }
+                    audioRecorder.read(buffer, 0, buffer.length);
+                    try {
+                        randomAccessWriter.write(buffer); 		  // write audio data to file
+                        payloadSize += buffer.length;
+                    } catch (IOException e) {
+                        Log.e(WavAudioRecorder.class.getName(), "Error occured in updateListener, recording is aborted");
+                        e.printStackTrace();
+                    }
+                }
+            });
+
         }
         //	reached a notification marker set by setNotificationMarkerPosition(int)
         public void onMarkerReached(AudioRecord recorder) {
@@ -296,7 +306,14 @@ public class WavAudioRecorder {
         if (state == State.READY) {
             payloadSize = 0;
             audioRecorder.startRecording();
-            audioRecorder.read(buffer, 0, buffer.length);
+            recordingThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    audioRecorder.read(buffer, 0, buffer.length);
+                }
+            });
+            recordingThread.start();
+
             state = State.RECORDING;
         } else {
             Log.e(Constant.RECORD_TAG, "start() called on illegal state");
@@ -315,6 +332,8 @@ public class WavAudioRecorder {
     public void stop() {
         if (state == State.RECORDING) {
             audioRecorder.stop();
+            recordingThread.interrupt();
+            recordingThread = null;
             try {
                 randomAccessWriter.seek(4); // Write size to RIFF header
                 randomAccessWriter.writeInt(Integer.reverseBytes(36+payloadSize));

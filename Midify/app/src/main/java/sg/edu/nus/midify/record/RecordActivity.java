@@ -1,6 +1,7 @@
 package sg.edu.nus.midify.record;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -8,11 +9,15 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.joanzapata.android.iconify.IconDrawable;
+import com.joanzapata.android.iconify.Iconify;
+import com.melnykov.fab.FloatingActionButton;
 
 import org.apache.commons.io.IOUtils;
 
@@ -26,6 +31,7 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 import retrofit.mime.TypedByteArray;
 import sg.edu.nus.POJOs.MidiPOJO;
+import sg.edu.nus.helper.AnimationHelper;
 import sg.edu.nus.helper.http.ConnectionHelper;
 import sg.edu.nus.helper.Constant;
 import sg.edu.nus.helper.http.MidifyRestClient;
@@ -36,7 +42,8 @@ import sg.edu.nus.midify.R;
 public class RecordActivity extends Activity {
 
     // UI Controls
-    private Button recordButton;
+    private ImageView loadingDisc;
+    private FloatingActionButton recordButton;
 
     // RECORD
     private WavAudioRecorder audioRecorder;
@@ -51,8 +58,11 @@ public class RecordActivity extends Activity {
         setContentView(R.layout.activity_record);
 
         // UI Control Assignment
-        recordButton = (Button) findViewById(R.id.record_button);
-        recordButton.setText("Start");
+        loadingDisc = (ImageView) findViewById(R.id.loading_disc);
+
+        recordButton = (FloatingActionButton) findViewById(R.id.record_button);
+        updateRecordButtonIcon(true);
+        recordButton.setShadow(true);
 
         // Loading Preferences
         midiList = PersistenceHelper.getMidiList(this);
@@ -75,24 +85,40 @@ public class RecordActivity extends Activity {
             audioRecorder.prepare();
             audioRecorder.start();
             hasRecord = true;
-            recordButton.setText("Stop");
+            updateRecordButtonIcon(false);
+            AnimationHelper.rotateInfinitely(this, loadingDisc);
         } else if (WavAudioRecorder.State.ERROR == audioRecorder.getState()) {
             audioRecorder.release();
             audioRecorder = WavAudioRecorder.getInstance();
             audioRecorder.setOutputFile(Constant.DEFAULT_WAV_FILE_PATH);
-            recordButton.setText("Start");
+            updateRecordButtonIcon(true);
+            loadingDisc.clearAnimation();
         } else {
             audioRecorder.stop();
             audioRecorder.reset();
+            updateRecordButtonIcon(true);
+            loadingDisc.clearAnimation();
             fetchUserInput();
-            recordButton.setText("Start");
         }
+    }
+
+    private void updateRecordButtonIcon(boolean isPaused) {
+        IconDrawable icon;
+        if (isPaused) {
+            icon = new IconDrawable(this, Iconify.IconValue.fa_microphone);
+        } else {
+            icon = new IconDrawable(this, Iconify.IconValue.fa_stop);
+        }
+        icon.colorRes(R.color.ColorPrimary);
+        icon.sizeDp(24);
+        recordButton.setImageDrawable(icon);
     }
 
     // Fetch user input for the file name and whether this file should be public or private
     public void fetchUserInput() {
         MaterialDialog uploadDialog = new MaterialDialog.Builder(this)
                 .title(R.string.dialog_midi_name_input_title)
+                .cancelable(false)
                 .customView(R.layout.dialog_create_midi, true)
                 .positiveText(R.string.dialog_upload_action_button)
                 .negativeText(R.string.dialog_cancel_action_button)

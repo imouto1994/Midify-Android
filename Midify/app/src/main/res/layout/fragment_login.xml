@@ -1,4 +1,4 @@
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,25 +9,26 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="sg.edu.nus.midify.LoginActivity"
-    android:background="#F64747"
-    android:weightSum="1">
-    
+    android:background="@color/ColorPrimary"
+    tools:context="sg.edu.nus.midify.main.login.LoginFragment" >
+
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="100dp"
         android:adjustViewBounds="true"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/logo"
         android:contentDescription="@null"
-        android:layout_marginTop="50dp"
-        android:src="@drawable/logo" />
+        android:layout_marginBottom="100dp"
+        android:layout_above="@+id/login_button" />
 
     <com.facebook.widget.LoginButton
         android:id="@+id/login_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:layout_marginTop="50dp" />
-</LinearLayout>
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
+</RelativeLayout>
 
 
 
