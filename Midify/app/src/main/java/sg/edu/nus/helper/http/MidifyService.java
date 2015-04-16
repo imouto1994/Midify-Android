@@ -3,6 +3,7 @@ package sg.edu.nus.helper.http;
 import java.util.List;
 
 import retrofit.Callback;
+import retrofit.client.Response;
 import retrofit.http.Body;
 import retrofit.http.GET;
 import retrofit.http.Multipart;
@@ -19,11 +20,15 @@ public interface MidifyService {
     @POST("/users")
     void authenticate(@Body UserPOJO user, Callback<UserPOJO> callback);
 
-    // Upload MIDI
+    // Convert MIDI
     @Multipart
-    @POST("/midi/upload")
-    void uploadMidi(@Part("midi") TypedFile midiFile, @Part("title") String title,
+    @POST("/midi/convert")
+    void convertMidi(@Part("midi") TypedFile wavFile, @Part("title") String title,
                     @Part("isPublic") boolean isPublic, Callback<MidiPOJO> callback);
+
+    // Download MIDI
+    @GET("/midi/download")
+    void downloadMidi(@Query("_id") String fileId, Callback<Response> callback);
 
     // Retrieve MIDIs for user
     @GET("/midi/user")

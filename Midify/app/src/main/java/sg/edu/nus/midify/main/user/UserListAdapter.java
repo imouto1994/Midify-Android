@@ -53,7 +53,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserViewHolder> implem
         holder.setUserId(user.getUserId());
         holder.getProfileNameView().setText(user.getName());
 
-        if (ConnectionHelper.checkNetworkConnection(context)) {
+        if (ConnectionHelper.checkNetworkConnection()) {
             String profilePictureURL = ConnectionHelper.getFacebookProfilePictureURL(user.getUserId());
             ConnectionHelper.downloadImage(holder.getProfilePictureView(), profilePictureURL);
         } else if (position == 0) {

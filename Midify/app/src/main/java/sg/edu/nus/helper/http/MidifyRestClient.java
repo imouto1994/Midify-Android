@@ -10,7 +10,9 @@ import java.util.List;
 import retrofit.Callback;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
+import retrofit.client.Response;
 import retrofit.converter.GsonConverter;
+import retrofit.http.Query;
 import retrofit.mime.TypedFile;
 import sg.edu.nus.POJOs.MidiPOJO;
 import sg.edu.nus.POJOs.UserPOJO;
@@ -65,15 +67,19 @@ public class MidifyRestClient {
         midifyApi.retrieveMidiForUser(userId, callback);
     }
 
-    // UPLOAD ACTION
-    public void uploadMidi(String filePath, String title, boolean isPublic,
+    // CONVERT ACTION
+    public void convertMidi(String filePath, String title, boolean isPublic,
                            Callback<MidiPOJO> callback) throws IOException {
         File file = new File(filePath);
         if (!file.exists()) {
             throw new IOException("File does not exist");
         }
         TypedFile uploadFile = new TypedFile("application/octet-stream", file);
-        midifyApi.uploadMidi(uploadFile, title, isPublic, callback);
+        midifyApi.convertMidi(uploadFile, title, isPublic, callback);
+    }
+
+    public void downloadMidi(String fileId, Callback<Response> callback) {
+        midifyApi.downloadMidi(fileId, callback);
     }
 
     // AUTHENTICATE ACTION

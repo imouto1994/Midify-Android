@@ -115,7 +115,7 @@ public class UserFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     }
 
     public void refreshList() {
-        if (ConnectionHelper.checkNetworkConnection(getActivity())) {
+        if (ConnectionHelper.checkNetworkConnection()) {
             MidifyRestClient.instance().getFriends(new Callback<List<UserPOJO>>() {
                 @Override
                 public void success(List<UserPOJO> userPOJOs, Response response) {

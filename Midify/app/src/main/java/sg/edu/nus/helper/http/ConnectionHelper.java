@@ -12,9 +12,11 @@ import android.widget.ImageView;
 import java.io.InputStream;
 
 import sg.edu.nus.helper.Constant;
+import sg.edu.nus.midify.MidifyApp;
 
 public class ConnectionHelper {
-    public static boolean checkNetworkConnection(Context context) {
+    public static boolean checkNetworkConnection() {
+        Context context = MidifyApp.getContext();
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo ni = cm.getActiveNetworkInfo();
         if (ni == null) {

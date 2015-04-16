@@ -28,6 +28,11 @@ public class MidiPOJO {
 
     private String localFilePath;
 
+    @SerializedName("wavFilePath")
+    private String serverWavFilePath;
+
+    private String localWavFilePath;
+
     @SerializedName("isPublic")
     private boolean isPublic;
 
@@ -38,7 +43,7 @@ public class MidiPOJO {
                                            String userId, boolean isPublic) {
         MidiPOJO instance = new MidiPOJO();
         instance.fileName = fileName;
-        instance.localFilePath = filePath;
+        instance.localWavFilePath = filePath;
         instance.fileId = fileId;
         instance.ownerId = userId;
         instance.userId = userId;
@@ -69,8 +74,16 @@ public class MidiPOJO {
         return this.localFilePath;
     }
 
+    public String getLocalWavFilePath() {
+        return this.localWavFilePath;
+    }
+
     public String getServerFilePath() {
         return this.serverFilePath;
+    }
+
+    public String getServerWavFilePath() {
+        return this.serverWavFilePath;
     }
 
     public String getFileId() {
@@ -105,8 +118,16 @@ public class MidiPOJO {
         this.localFilePath = filePath;
     }
 
+    public void setLocalWavFilePath(String filePath) {
+        this.localWavFilePath = filePath;
+    }
+
     public void setServerFilePath(String filePath) {
         this.serverFilePath = filePath;
+    }
+
+    public void setServerWavFilePath(String filePath) {
+        this.serverWavFilePath = filePath;
     }
 
     public void setFileId(String fileId) {
