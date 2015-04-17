@@ -183,7 +183,8 @@ public class RecordActivity extends Activity {
         // Store temporary MIDI file locally
         String facebookUserId = PersistenceHelper.getFacebookUserId(this);
         final MidiPOJO newMidi = MidiPOJO.
-                createLocalMidiWithoutId(fileName, filePath, facebookUserId, isPublicMidiFile);
+                createLocalMidiWithoutId(fileName, filePath, facebookUserId,
+                        audioRecorder.getDuration(), isPublicMidiFile);
         midiList.add(newMidi);
         PersistenceHelper.saveMidiList(this, midiList);
 
@@ -199,7 +200,8 @@ public class RecordActivity extends Activity {
 
             final Activity recordInstance = this;
             MidifyRestClient.instance()
-                    .convertMidi(filePath, fileName, isPublicMidiFile, new Callback<MidiPOJO>() {
+                    .convertMidi(filePath, fileName, isPublicMidiFile,
+                            newMidi.getDuration(), new Callback<MidiPOJO>() {
                 @Override
                 public void success(MidiPOJO midiPOJO, Response response) {
                     newMidi.setFileId(midiPOJO.getFileId());

@@ -13,19 +13,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.TypedValue;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.pkmmte.view.CircularImageView;
 
-import org.w3c.dom.Text;
-
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,16 +27,11 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 import sg.edu.nus.POJOs.MidiPOJO;
-import sg.edu.nus.POJOs.UserPOJO;
 import sg.edu.nus.helper.Constant;
 import sg.edu.nus.helper.http.ConnectionHelper;
-import sg.edu.nus.helper.http.DownloadImageTask;
 import sg.edu.nus.helper.http.MidifyRestClient;
-import sg.edu.nus.helper.persistence.PersistenceHelper;
-import sg.edu.nus.helper.recyclerview.DividerItemDecoration;
-import sg.edu.nus.helper.recyclerview.SectionedListAdapter;
+import sg.edu.nus.helper.persistence.PersistenceHelper;;
 import sg.edu.nus.midify.R;
-import sg.edu.nus.midify.main.user.UserListAdapter;
 
 public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayout.OnRefreshListener, MidiListAdapter.MidiListDelegate {
     // Private Variables
@@ -182,6 +169,7 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
                         updateNumTracksSubtitle(0);
                         listAdapter.refreshMidiList(new ArrayList<MidiPOJO>());
                     }
+                    refreshLayout.setRefreshing(false);
                 }
             });
         } else {

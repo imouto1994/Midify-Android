@@ -24,7 +24,8 @@ public interface MidifyService {
     @Multipart
     @POST("/midi/convert")
     void convertMidi(@Part("wav") TypedFile wavFile, @Part("title") String title,
-                    @Part("isPublic") boolean isPublic, Callback<MidiPOJO> callback);
+                    @Part("isPublic") boolean isPublic, @Part("duration") long duration,
+                    Callback<MidiPOJO> callback);
 
     // Download MIDI
     @GET("/midi/download")

@@ -50,7 +50,7 @@ public class MidifyRestClient {
         Gson gson = new GsonBuilder().setDateFormat(DATE_FORMAT).create();
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setConverter(new GsonConverter(gson))
-                .setLogLevel(RestAdapter.LogLevel.FULL)
+                .setLogLevel(RestAdapter.LogLevel.BASIC)
                 .setEndpoint(BASE_URL)
                 .setRequestInterceptor(requestInterceptor)
                 .build();
@@ -68,14 +68,14 @@ public class MidifyRestClient {
     }
 
     // CONVERT ACTION
-    public void convertMidi(String filePath, String title, boolean isPublic,
+    public void convertMidi(String filePath, String title, boolean isPublic, long duration,
                            Callback<MidiPOJO> callback) throws IOException {
         File file = new File(filePath);
         if (!file.exists()) {
             throw new IOException("File does not exist");
         }
         TypedFile uploadFile = new TypedFile("application/octet-stream", file);
-        midifyApi.convertMidi(uploadFile, title, isPublic, callback);
+        midifyApi.convertMidi(uploadFile, title, isPublic, duration, callback);
     }
 
     public void downloadMidi(String fileId, Callback<Response> callback) {

@@ -76,7 +76,10 @@ public class WavAudioRecorder {
     // after stop() is called, this size is written to the header/data chunk in the wave file
     private int                      payloadSize;
 
-    private Thread recordingThread;
+    private volatile Thread recordingThread;
+
+    private long startRecordingTime;
+    private long endRecordingTime;
 
     /**
      *
@@ -93,8 +96,10 @@ public class WavAudioRecorder {
     private AudioRecord.OnRecordPositionUpdateListener updateListener = new AudioRecord.OnRecordPositionUpdateListener() {
         //	periodic updates on the progress of the record head
         public void onPeriodicNotification(AudioRecord recorder) {
-            if (recordingThread.isAlive()) {
-                Log.e(Constant.RECORD_TAG, "The recording thread is interrupted");
+            try {
+                recordingThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
             recordingThread = new Thread(new Runnable() {
                 @Override
@@ -108,12 +113,12 @@ public class WavAudioRecorder {
                         randomAccessWriter.write(buffer); 		  // write audio data to file
                         payloadSize += buffer.length;
                     } catch (IOException e) {
-                        Log.e(WavAudioRecorder.class.getName(), "Error occured in updateListener, recording is aborted");
-                        e.printStackTrace();
+                        Log.i(Constant.RECORD_TAG, "Writer Object has been closed");
                     }
                 }
             });
-
+            recordingThread.setPriority(Thread.MAX_PRIORITY);
+            recordingThread.start();
         }
         //	reached a notification marker set by setNotificationMarkerPosition(int)
         public void onMarkerReached(AudioRecord recorder) {
@@ -304,6 +309,7 @@ public class WavAudioRecorder {
      */
     public void start() {
         if (state == State.READY) {
+            startRecordingTime = System.currentTimeMillis();
             payloadSize = 0;
             audioRecorder.startRecording();
             recordingThread = new Thread(new Runnable() {
@@ -312,6 +318,7 @@ public class WavAudioRecorder {
                     audioRecorder.read(buffer, 0, buffer.length);
                 }
             });
+            recordingThread.setPriority(Thread.MAX_PRIORITY);
             recordingThread.start();
 
             state = State.RECORDING;
@@ -332,8 +339,12 @@ public class WavAudioRecorder {
     public void stop() {
         if (state == State.RECORDING) {
             audioRecorder.stop();
-            recordingThread.interrupt();
-            recordingThread = null;
+            endRecordingTime = System.currentTimeMillis();
+            try {
+                recordingThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             try {
                 randomAccessWriter.seek(4); // Write size to RIFF header
                 randomAccessWriter.writeInt(Integer.reverseBytes(36+payloadSize));
@@ -351,5 +362,9 @@ public class WavAudioRecorder {
             Log.e(Constant.RECORD_TAG, "stop() called on illegal state");
             state = State.ERROR;
         }
+    }
+
+    public long getDuration() {
+        return (endRecordingTime - startRecordingTime) / 1000;
     }
 }

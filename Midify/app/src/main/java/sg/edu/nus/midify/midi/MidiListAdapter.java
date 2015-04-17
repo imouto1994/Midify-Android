@@ -68,7 +68,6 @@ public class MidiListAdapter extends RecyclerView.Adapter<MidiViewHolder> implem
     public void onPlayButtonClick(View v, String midiId) {
         for (MidiPOJO midi : midiList) {
             if (midi.getFileId().equals(midiId)) {
-                System.out.println(midi.getLocalFilePath());
                 if (!midi.isOnlyRemote()) {
                     delegate.play(midi.getLocalFilePath());
                 } else {

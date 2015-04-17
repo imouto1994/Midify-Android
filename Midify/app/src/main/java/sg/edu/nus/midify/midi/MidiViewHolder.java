@@ -15,7 +15,9 @@ import com.melnykov.fab.FloatingActionButton;
 import sg.edu.nus.midify.R;
 
 public class MidiViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
     private String midiId;
+    private boolean isPaused;
 
     // UI Controls
     private ImageView profilePictureView;
@@ -29,6 +31,8 @@ public class MidiViewHolder extends RecyclerView.ViewHolder implements View.OnCl
     public MidiViewHolder(View itemView, ViewHolderOnClick delegate, Context context) {
         super(itemView);
         this.delegate = delegate;
+        this.context = context;
+        this.isPaused = true;
 
         // Assign UI Controls
         profilePictureView = (ImageView) itemView.findViewById(R.id.profile_picture);
@@ -36,12 +40,22 @@ public class MidiViewHolder extends RecyclerView.ViewHolder implements View.OnCl
         midiNameTextView = (TextView) itemView.findViewById(R.id.midi_name);
 
         playButton = (FloatingActionButton) itemView.findViewById(R.id.play_button);
-        IconDrawable icon = new IconDrawable(context, Iconify.IconValue.fa_play);
+        updatePlayIcon();
+        playButton.setShadow(false);
+        playButton.setOnClickListener(this);
+    }
+
+    private void updatePlayIcon() {
+        IconDrawable icon;
+        if (isPaused) {
+            icon = new IconDrawable(context, Iconify.IconValue.fa_play);
+        } else {
+            icon = new IconDrawable(context, Iconify.IconValue.fa_pause);
+        }
+        isPaused = !isPaused;
         icon.color(Color.WHITE);
         icon.sizeDp(24);
         playButton.setImageDrawable(icon);
-        playButton.setShadow(false);
-        playButton.setOnClickListener(this);
     }
 
     public void setMidiId(String id) {

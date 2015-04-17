@@ -28,6 +28,9 @@ public class MidiPOJO {
 
     private String localFilePath;
 
+    @SerializedName("duration")
+    private long duration;
+
     @SerializedName("wavFilePath")
     private String serverWavFilePath;
 
@@ -40,13 +43,14 @@ public class MidiPOJO {
     private Date editedTime;
 
     public static MidiPOJO createLocalMidi(String fileName, String filePath, String fileId,
-                                           String userId, boolean isPublic) {
+                                           String userId, long duration, boolean isPublic) {
         MidiPOJO instance = new MidiPOJO();
         instance.fileName = fileName;
         instance.localWavFilePath = filePath;
         instance.fileId = fileId;
         instance.ownerId = userId;
         instance.userId = userId;
+        instance.duration = duration;
         instance.isPublic = isPublic;
         instance.editedTime = new Date();
 
@@ -54,8 +58,9 @@ public class MidiPOJO {
     }
 
     public static MidiPOJO createLocalMidiWithoutId(String fileName, String filePath,
-                                                    String userId, boolean isPublic) {
-        return createLocalMidi(fileName, filePath, UNDEFINED + System.currentTimeMillis() / 1000, userId, isPublic);
+                                                    String userId, long duration, boolean isPublic) {
+        return createLocalMidi(fileName, filePath, UNDEFINED + System.currentTimeMillis() / 1000,
+                userId, duration, isPublic);
     }
 
     public boolean isOnlyLocal() {
@@ -100,6 +105,10 @@ public class MidiPOJO {
 
     public String getUserId() {
         return this.userId;
+    }
+
+    public long getDuration() {
+        return this.duration;
     }
 
     public boolean getIsPublic() {
@@ -148,6 +157,10 @@ public class MidiPOJO {
 
     public void setIsPublic(boolean isPublic) {
         this.isPublic = isPublic;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
     }
 
     public void setEditedTime(Date time) {
