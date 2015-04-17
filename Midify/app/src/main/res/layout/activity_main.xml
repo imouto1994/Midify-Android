@@ -10,9 +10,6 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
-        <!-- Navigation Bar -->
-        <include layout="@layout/toolbar" />
-
         <!-- Sliding Tab Layout -->
         <sg.edu.nus.helper.slidingtab.SlidingTabLayout
             android:id="@+id/sliding_tabs"
@@ -38,6 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
+        android:src="@drawable/ic_transparenticon"
         fab:fab_colorNormal="@color/ColorPrimary"
         fab:fab_colorPressed="@color/ColorPrimaryDark"
         fab:fab_colorRipple="@color/White"

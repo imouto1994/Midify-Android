@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.facebook.Request;
 import com.facebook.Response;
@@ -61,16 +62,9 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Initialize toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-        }
-
         // Initialize record button
         midifyButton = (FloatingActionButton) findViewById(R.id.midify_button);
         midifyButton.hide(false);
-
 
         // Initialize Facebook UIHelper
         uiHelper = new UiLifecycleHelper(this, callback);
@@ -154,7 +148,6 @@ public class MainActivity extends ActionBarActivity {
 
         if (session != null && session.isOpened()) {
             // if the session is already open, try to show the selection fragment
-            getSupportActionBar().show();
             hideFragment(LOGIN_FRAGMENT_INDEX, false);
             String currentToken = PersistenceHelper.getFacebookToken(this);
             if (currentToken == null || !currentToken.equals(session.getAccessToken())) {
@@ -165,7 +158,6 @@ public class MainActivity extends ActionBarActivity {
             midifyButton.show(true);
         } else {
             // otherwise present the splash screen and ask the user to login, unless the user explicitly skipped.
-            getSupportActionBar().hide();
             midifyButton.hide(true);
             showFragment(LOGIN_FRAGMENT_INDEX, false);
         }
@@ -187,7 +179,6 @@ public class MainActivity extends ActionBarActivity {
             // check for the OPENED state instead of session.isOpened() since for the
             // OPENED_TOKEN_UPDATED state, the selection fragment should already be showing.
             if (state.equals(SessionState.OPENED)) {
-                getSupportActionBar().show();
                 hideFragment(LOGIN_FRAGMENT_INDEX, false);
                 String currentToken = PersistenceHelper.getFacebookToken(this);
                 if (currentToken == null || !currentToken.equals(session.getAccessToken())) {
@@ -198,7 +189,6 @@ public class MainActivity extends ActionBarActivity {
                 midifyButton.show(true);
             } else if (state.isClosed()) {
                 midifyButton.hide(true);
-                getSupportActionBar().hide();
                 showFragment(LOGIN_FRAGMENT_INDEX, false);
             }
         }

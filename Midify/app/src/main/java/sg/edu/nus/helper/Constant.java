@@ -31,6 +31,8 @@ public class Constant {
 
     // Intent params
     public static String INTENT_PARAM_USER_ID = "userId";
+    public static String INTENT_PARAM_USER_NAME = "userName";
+    public static String INTENT_PARAM_USER_PROFILE_PICTURE = "userProfile";
 
     // Audio Record Configurations
     public static int AUDIO_CHANNEL_CONFIGURATION = AudioFormat.CHANNEL_IN_MONO;

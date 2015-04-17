@@ -16,7 +16,8 @@
         android:layout_width="wrap_content"
         android:layout_height="300dp"
         android:adjustViewBounds="true"
-        android:layout_centerInParent="true"
+        android:layout_above="@+id/record_button"
+        android:layout_marginBottom="75dp"
         android:src="@drawable/loadingdisc" />
 
     <com.melnykov.fab.FloatingActionButton

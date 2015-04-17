@@ -2,6 +2,7 @@ package sg.edu.nus.midify.midi;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -15,6 +16,12 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.pkmmte.view.CircularImageView;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,6 +38,7 @@ import sg.edu.nus.POJOs.MidiPOJO;
 import sg.edu.nus.POJOs.UserPOJO;
 import sg.edu.nus.helper.Constant;
 import sg.edu.nus.helper.http.ConnectionHelper;
+import sg.edu.nus.helper.http.DownloadImageTask;
 import sg.edu.nus.helper.http.MidifyRestClient;
 import sg.edu.nus.helper.persistence.PersistenceHelper;
 import sg.edu.nus.helper.recyclerview.DividerItemDecoration;
@@ -45,6 +53,7 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
     private List<MidiPOJO> localMidis;
 
     // UI Controls
+    private Toolbar toolbar;
     private SwipeRefreshLayout refreshLayout;
     private RecyclerView midiList;
     private MidiListAdapter listAdapter;
@@ -66,10 +75,20 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
         updateUserId(userId);
 
         // Initialize toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        TextView titleTextView = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        titleTextView.setText(intent.getStringExtra(Constant.INTENT_PARAM_USER_NAME));
+
+        TextView subtitleTextView = (TextView) toolbar.findViewById(R.id.toolbar_subtitle);
+        subtitleTextView.setText("Fetching...");
+
+        CircularImageView logo = (CircularImageView) toolbar.findViewById(R.id.toolbar_logo);
+        logo.setImageBitmap((Bitmap) intent.getParcelableExtra(Constant.INTENT_PARAM_USER_PROFILE_PICTURE));
 
         // Initialize refresh layout
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
@@ -148,6 +167,7 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
                         }
                     }
                     listAdapter.refreshMidiList(midiPOJOs);
+                    updateNumTracksSubtitle(midiPOJOs.size());
                     refreshLayout.setRefreshing(false);
                 }
 
@@ -156,8 +176,10 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
                     Log.e(Constant.REQUEST_TAG, error.getMessage());
                     if (isLocalUser) {
                         List<MidiPOJO> localMidiList = PersistenceHelper.getMidiList(context);
+                        updateNumTracksSubtitle(localMidiList.size());
                         listAdapter.refreshMidiList(localMidiList);
                     } else {
+                        updateNumTracksSubtitle(0);
                         listAdapter.refreshMidiList(new ArrayList<MidiPOJO>());
                     }
                 }
@@ -166,8 +188,10 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
             if (isLocalUser) {
                 List<MidiPOJO> localMidiList = PersistenceHelper.getMidiList(this);
                 listAdapter.refreshMidiList(localMidiList);
+                updateNumTracksSubtitle(localMidiList.size());
             } else {
                 listAdapter.refreshMidiList(new ArrayList<MidiPOJO>());
+                updateNumTracksSubtitle(0);
             }
             refreshLayout.setRefreshing(false);
         }
@@ -187,6 +211,12 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
         }
         if (mediaPlayer == null) {
             mediaPlayer = MediaPlayer.create(this, Uri.fromFile(midiFile));
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    mediaPlayer.reset();
+                }
+            });
             previousFilePath = filePath;
             mediaPlayer.start();
         } else {
@@ -199,9 +229,26 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
             } else {
                 mediaPlayer.release();
                 mediaPlayer = MediaPlayer.create(this, Uri.fromFile(midiFile));
+                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        mediaPlayer.reset();
+                    }
+                });
                 previousFilePath = filePath;
                 mediaPlayer.start();
             }
+        }
+    }
+
+    private void updateNumTracksSubtitle(int count) {
+        TextView subtitleTextView = (TextView) toolbar.findViewById(R.id.toolbar_subtitle);
+        if (count == 0) {
+            subtitleTextView.setText("No tracks");
+        } else if (count == 1) {
+            subtitleTextView.setText("1 track");
+        } else {
+            subtitleTextView.setText(count + " tracks");
         }
     }
 }

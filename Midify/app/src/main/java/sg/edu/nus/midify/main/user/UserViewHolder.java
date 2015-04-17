@@ -1,5 +1,7 @@
 package sg.edu.nus.midify.main.user;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -15,6 +17,7 @@ import sg.edu.nus.midify.R;
 public class UserViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     private String userId;
+    private String userName;
     private ImageView profilePictureView;
     private TextView profileNameView;
     private ViewHolderOnClick delegate;
@@ -32,6 +35,10 @@ public class UserViewHolder extends RecyclerView.ViewHolder implements View.OnCl
        this.userId = userId;
     }
 
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     public ImageView getProfilePictureView() {
         return this.profilePictureView;
     }
@@ -42,10 +49,11 @@ public class UserViewHolder extends RecyclerView.ViewHolder implements View.OnCl
 
     @Override
     public void onClick(View v) {
-        delegate.onViewHolderClick(v, userId);
+        Bitmap imageBitmap = ((BitmapDrawable) profilePictureView.getDrawable()).getBitmap();
+        delegate.onViewHolderClick(v, userId, userName, imageBitmap);
     }
 
     public static interface ViewHolderOnClick {
-        public void onViewHolderClick(View v, String userId);
+        public void onViewHolderClick(View v, String userId, String userName, Bitmap imageBitmap);
     }
 }

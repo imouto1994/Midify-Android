@@ -19,7 +19,7 @@ import sg.edu.nus.POJOs.UserPOJO;
 
 public class MidifyRestClient {
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-    private static final String IP = "172.23.119.88";
+    private static final String IP = "172.23.118.189";
     private static final String PORT = "9000";
     private static final String BASE_URL = "http://" + IP + ":" + PORT + "/api";
 
