@@ -1,27 +1,81 @@
 package sg.edu.nus.midify.midi;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.melnykov.fab.FloatingActionButton;
+
+import org.apache.commons.io.IOUtils;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.Formatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+import retrofit.mime.TypedByteArray;
 import sg.edu.nus.POJOs.MidiPOJO;
+import sg.edu.nus.helper.Constant;
 import sg.edu.nus.helper.http.ConnectionHelper;
+import sg.edu.nus.helper.http.DownloadImageTask;
+import sg.edu.nus.helper.http.MidifyRestClient;
+import sg.edu.nus.helper.persistence.PersistenceHelper;
 import sg.edu.nus.midify.R;
 
-public class MidiListAdapter extends RecyclerView.Adapter<MidiViewHolder> implements MidiViewHolder.ViewHolderOnClick {
+public class MidiListAdapter extends RecyclerView.Adapter<MidiViewHolder> implements MidiViewHolder.ViewHolderOnClick, DownloadImageTask.DownloadImageTaskDelegate {
+    // List of MIDIs to be displayed
     private List<MidiPOJO> midiList;
+    private boolean isLocalUser;
+    private List<MidiPOJO> localMidis;
+    private Map<String, MidiPOJO> localOwnMidis;
+    private Map<String, MidiPOJO> localRefMidis;
+
+    // Delegate for MidiListAdapter
     private MidiListDelegate delegate;
 
-    public MidiListAdapter(MidiListDelegate delegate) {
+    // Media Player
+    private MediaPlayer mediaPlayer;
+    private String previousFilePath;
+    private String previousFileId;
+
+    public MidiListAdapter(MidiListDelegate delegate, boolean isLocalUser, List<MidiPOJO> localMidis) {
         this.delegate = delegate;
         this.midiList = new ArrayList<>();
+        this.isLocalUser = isLocalUser;
+        this.localMidis = localMidis;
+        updateLocalMidisMap();
+    }
+
+    private void updateLocalMidisMap() {
+        this.localOwnMidis = new HashMap<>();
+        this.localRefMidis = new HashMap<>();
+        for (MidiPOJO midi : localMidis) {
+            if (midi.isRef()) {
+                localRefMidis.put(midi.getRefId(), midi);
+            } else {
+                localOwnMidis.put(midi.getFileId(), midi);
+            }
+        }
     }
 
     @Override
@@ -38,13 +92,45 @@ public class MidiListAdapter extends RecyclerView.Adapter<MidiViewHolder> implem
         if (position >= midiList.size()) {
             return;
         }
+
         MidiPOJO midi = midiList.get(position);
-        holder.setMidiId(midi.getFileId());
+        holder.setPosition(position);
         holder.getMidiNameTextView().setText(midi.getFileName());
+        holder.getDurationTextView().setText(getDurationStringFormat(midi.getDuration()));
+        holder.getEditedTimeTextView().setText(getEditedTimeStringFormat(midi.getEditedTime()));
+        updateForkButton(position, holder);
         if (ConnectionHelper.checkNetworkConnection()) {
             String profilePictureURL = ConnectionHelper.getFacebookProfilePictureURL(midi.getOwnerId());
-            ConnectionHelper.downloadImage(holder.getProfilePictureView(), profilePictureURL);
+            ConnectionHelper.downloadImage(holder.getProfilePictureView(), profilePictureURL, this);
         }
+    }
+
+    private void updateForkButton(int position, MidiViewHolder holder) {
+        if (isLocalUser) {
+            holder.updateForkButton(MidiViewHolder.FORK_BUTTON_HIDDEN_STATE);
+        } else {
+            MidiPOJO currentMidi = midiList.get(position);
+            if (localRefMidis.containsKey(currentMidi.getFileId())
+                    || localRefMidis.containsKey(currentMidi.getRefId())) {
+                holder.updateForkButton(MidiViewHolder.FORK_BUTTON_FORKED_STATE);
+            } else if (localOwnMidis.containsKey(currentMidi.getRefId())) {
+                holder.updateForkButton(MidiViewHolder.FORK_BUTTON_HIDDEN_STATE);
+            } else {
+                holder.updateForkButton(MidiViewHolder.FORK_BUTTON_UNFORKED_STATE);
+            }
+        }
+    }
+
+    private String getDurationStringFormat(long seconds) {
+        long minute = seconds / 60;
+        long remainderSeconds = seconds - minute * 60;
+
+        return String.format("%02d:%02d", minute, remainderSeconds);
+    }
+
+    private String getEditedTimeStringFormat(Date date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM, yyyy");
+        return "Last edited on " + dateFormat.format(date);
     }
 
     @Override
@@ -65,24 +151,195 @@ public class MidiListAdapter extends RecyclerView.Adapter<MidiViewHolder> implem
     }
 
     @Override
-    public void onPlayButtonClick(View v, String midiId) {
-        for (MidiPOJO midi : midiList) {
-            if (midi.getFileId().equals(midiId)) {
-                if (!midi.isOnlyRemote()) {
-                    delegate.play(midi.getLocalFilePath());
-                } else {
-                    // Download the midi (This case is mainly for fork feature)
-                }
+    public void onPlayButtonClick(View v, int position, MidiItemDelegate itemDelegate) {
+        MidiPOJO midi = midiList.get(position);
 
-                break;
+        if (!midi.isOnlyRemote()) {
+            playLocalMidi(midi.getLocalFilePath(), itemDelegate);
+        } else {
+            // Download the midi (This case is mainly for fork feature)
+            playRemoteMidi(midi.getFileId(), itemDelegate);
+        }
+    }
+
+    private void playLocalMidi(String filePath, final MidiItemDelegate itemDelegate) {
+        itemDelegate.updatePlayIcon();
+        File midiFile = new File(filePath);
+        if (!midiFile.exists()) {
+            Log.e(Constant.MEDIA_TAG, "MIDI file cannot be found for playback");
+            return;
+        }
+        if (mediaPlayer == null || (previousFilePath != null && !previousFilePath.equals(filePath))) {
+            if (mediaPlayer != null) {
+                mediaPlayer.release();
+            }
+            mediaPlayer = MediaPlayer.create(delegate.getContext(), Uri.fromFile(midiFile));
+            previousFilePath = filePath;
+            mediaPlayer.start();
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    mp.pause();
+                    mp.seekTo(0);
+                }
+            });
+            mediaPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+                @Override
+                public void onSeekComplete(MediaPlayer mp) {
+                    itemDelegate.updatePlayIcon();
+                }
+            });
+        } else {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.pause();
+            } else {
+                mediaPlayer.start();
             }
         }
     }
 
-    public static interface MidiListDelegate {
+    private void playRemoteMidi(final String fileId, final MidiItemDelegate itemDelegate) {
+        itemDelegate.updatePlayIcon();
+        if (mediaPlayer == null || (previousFileId != null && !previousFileId.equals(fileId))) {
+            if (mediaPlayer != null) {
+                mediaPlayer.release();
+            }
+            previousFileId = fileId;
+            final MaterialDialog progressDialog = new MaterialDialog.Builder(delegate.getContext())
+                    .title(R.string.dialog_remote_progress_title)
+                    .content(R.string.dialog_remote_progress_content)
+                    .cancelable(false)
+                    .progress(true, 0)
+                    .show();
+            MidifyRestClient.instance().downloadMidi(fileId, new Callback<Response>() {
+                @Override
+                public void success(Response response, Response response2) {
+                    byte[] data = ((TypedByteArray) response.getBody()).getBytes();
+                    String localFilePath = PersistenceHelper.saveMidiData(Constant.DEFAULT_TEMP_REMOTE_MIDI_NAME, data);
+                    if (localFilePath == null) {
+                        return;
+                    }
+                    File midiFile = new File(localFilePath);
+                    if (!midiFile.exists()) {
+                        Log.e(Constant.MEDIA_TAG, "MIDI file cannot be found for playback");
+                        return;
+                    }
+                    mediaPlayer = MediaPlayer.create(delegate.getContext(), Uri.fromFile(midiFile));
+                    mediaPlayer.start();
+                    mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                        @Override
+                        public void onCompletion(MediaPlayer mp) {
+                            mp.pause();
+                            mp.seekTo(0);
+                        }
+                    });
+                    mediaPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+                        @Override
+                        public void onSeekComplete(MediaPlayer mp) {
+                            itemDelegate.updatePlayIcon();
+                        }
+                    });
+                    progressDialog.dismiss();
+                }
 
-        public Context getContext();
+                @Override
+                public void failure(RetrofitError error) {
+                    progressDialog.dismiss();
+                    Log.e(Constant.REQUEST_TAG, "Reuqest Failed for URL: " + error.getUrl());
+                }
+            });
+        } else {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.pause();
+            } else {
+                mediaPlayer.start();
+            }
+        }
 
-        public void play(String filePath);
     }
+
+    @Override
+    public int onForkButtonClick(View v, final int position, int forkState) {
+        MidiPOJO midi = midiList.get(position);
+        if (forkState == MidiViewHolder.FORK_BUTTON_HIDDEN_STATE) {
+            Toast.makeText(delegate.getContext(), "Cannot fork a track in hidden state", Toast.LENGTH_SHORT).show();
+        } else if (forkState == MidiViewHolder.FORK_BUTTON_FORKED_STATE) {
+            Toast.makeText(delegate.getContext(), "Cannot fork an already forked track", Toast.LENGTH_SHORT).show();
+        } else {
+            if (ConnectionHelper.checkNetworkConnection()) {
+                final MaterialDialog progressDialog = new MaterialDialog.Builder(delegate.getContext())
+                        .title(R.string.dialog_fork_progress_title)
+                        .content(R.string.dialog_fork_progress_content_1)
+                        .cancelable(false)
+                        .progress(true, 0)
+                        .show();
+                Map<String, String> params = new HashMap<>();
+                params.put(Constant.REQUEST_PARAM_FILE_ID, midi.getFileId());
+                MidifyRestClient.instance().forkMidi(MidiPOJO.createBodyRequest(params), new Callback<MidiPOJO>() {
+                    @Override
+                    public void success(MidiPOJO midiPOJO, Response response) {
+                        final MidiPOJO newMidi = midiPOJO;
+                        localMidis.add(newMidi);
+                        PersistenceHelper.saveMidiList(delegate.getContext(), localMidis);
+                        progressDialog.setContent(delegate.getContext().getString(R.string.dialog_fork_progress_content_2));
+
+                        MidifyRestClient.instance().downloadMidi(newMidi.getFileId(), new Callback<Response>() {
+                            @Override
+                            public void success(Response response, Response response2) {
+                                byte[] data = ((TypedByteArray) response.getBody()).getBytes();
+                                String localFilePath = Constant.BASE_FILE_DIR + newMidi.getFileName()
+                                        + System.currentTimeMillis() / 1000 + ".mid";
+                                File localMidifFile = new File(localFilePath);
+                                try {
+                                    if (!localMidifFile.exists()) {
+                                        if (!localMidifFile.createNewFile()) {
+                                            throw new IOException();
+                                        }
+                                    }
+                                    FileOutputStream outputStream = new FileOutputStream(localMidifFile);
+                                    IOUtils.write(data, outputStream);
+                                    outputStream.close();
+                                    newMidi.setLocalFilePath(localFilePath);
+                                    PersistenceHelper.saveMidiList(delegate.getContext(), localMidis);
+                                    updateLocalMidisMap();
+                                    notifyItemChanged(position);
+                                } catch (IOException e) {
+                                    Log.e(Constant.RECORD_TAG, "Error in storing midi file locally");
+                                } finally {
+                                    progressDialog.dismiss();
+                                }
+                            }
+
+                            @Override
+                            public void failure(RetrofitError error) {
+                                Log.e(Constant.REQUEST_TAG, "Reuqest Failed for URL: " + error.getUrl());
+                                progressDialog.dismiss();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        Log.e(Constant.REQUEST_TAG, "Reuqest Failed for URL: " + error.getUrl());
+                        progressDialog.dismiss();
+                    }
+                });
+            } else {
+                Toast.makeText(delegate.getContext(), "No network connection", Toast.LENGTH_SHORT).show();
+            }
+
+        }
+        return 0;
+    }
+
+    @Override
+    public void handle(ImageView imageView) {
+        imageView.setColorFilter(Color.argb(100, 0, 0, 0));
+    }
+
+    public static interface MidiListDelegate {
+        public Context getContext();
+    }
+
+
 }

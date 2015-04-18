@@ -22,12 +22,13 @@ public class Constant {
     public static final String FACEBOOK_PREFS_TOKEN = "FACEBOOK_TOKEN";
 
     // Default Directory
-    public static String BASE_FILE_DIR = Environment.getExternalStorageDirectory().toString() + "/midify/";
+    public static String BASE_FILE_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/midify/";
     public static String DEFAULT_PROFILE_PICTURE_NAME = "profile";
     public static String DEFAULT_PROFILE_PICTURE_PATH = BASE_FILE_DIR + DEFAULT_PROFILE_PICTURE_NAME + ".jpg";
     public static String DEFAULT_PCM_FILE_PATH = BASE_FILE_DIR + "temp.pcm";
     public static String DEFAULT_WAV_FILE_PATH = BASE_FILE_DIR + "temp.wav";
     public static String DEFAULT_MIDI_FILE_PATH = BASE_FILE_DIR + "temp.midi";
+    public static String DEFAULT_TEMP_REMOTE_MIDI_NAME = "tempRemote";
 
     // Intent params
     public static String INTENT_PARAM_USER_ID = "userId";
@@ -40,5 +41,9 @@ public class Constant {
     public static int AUDIO_ENCODING_CONFIGURATION = AudioFormat.ENCODING_PCM_16BIT;
     public static int AUDIO_SAMPLE_RATE_CONFIGURATION = 44100;
     public static int BITS_PER_SAMPLE_CONFIGURATION = 16;
+
+    // Request params
+    public static String REQUEST_PARAM_FILE_ID = "fileId";
+    public static String REQUEST_PARAM_REF_ID = "refId";
 
 }

@@ -5,6 +5,8 @@ import java.util.List;
 import retrofit.Callback;
 import retrofit.client.Response;
 import retrofit.http.Body;
+import retrofit.http.Field;
+import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
 import retrofit.http.Multipart;
 import retrofit.http.POST;
@@ -19,6 +21,10 @@ public interface MidifyService {
     // Authenticate Server
     @POST("/users")
     void authenticate(@Body UserPOJO user, Callback<UserPOJO> callback);
+
+    // Fork MIDI
+    @POST("/midi/fork")
+    void forkMidi(@Body MidiPOJO requestParams, Callback<MidiPOJO> callback);
 
     // Convert MIDI
     @Multipart

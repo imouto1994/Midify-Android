@@ -21,6 +21,9 @@ import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
 import com.melnykov.fab.FloatingActionButton;
 
+import java.io.File;
+import java.io.IOException;
+
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import sg.edu.nus.POJOs.UserPOJO;
@@ -62,6 +65,13 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Initialize Base Directory
+        try {
+            initializeDirectory();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         // Initialize record button
         midifyButton = (FloatingActionButton) findViewById(R.id.midify_button);
         midifyButton.hide(false);
@@ -102,6 +112,16 @@ public class MainActivity extends ActionBarActivity {
 
         // Initialize Midify REST Client
         MidifyRestClient.initialize();
+    }
+
+    private void initializeDirectory() throws IOException {
+        String directoryPath = Constant.BASE_FILE_DIR;
+        File file = new File(directoryPath.substring(0, directoryPath.length() - 1));
+        if (!file.exists()) {
+            if (!file.mkdir()) {
+                throw new IOException("Failed to create base directory");
+            }
+        }
     }
 
     @Override

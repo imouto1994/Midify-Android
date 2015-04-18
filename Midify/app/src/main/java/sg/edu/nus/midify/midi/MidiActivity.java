@@ -45,9 +45,6 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
     private RecyclerView midiList;
     private MidiListAdapter listAdapter;
 
-    private MediaPlayer mediaPlayer;
-    private String previousFilePath;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,7 +99,7 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
         // Configure item animation
         midiList.setItemAnimator(new DefaultItemAnimator());
         // Configure list adapter
-        listAdapter = new MidiListAdapter(this);
+        listAdapter = new MidiListAdapter(this, isLocalUser, localMidis);
         midiList.setAdapter(listAdapter);
         midiList.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -124,9 +121,7 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
         this.userId = userId;
         String localUserId = PersistenceHelper.getFacebookUserId(this);
         isLocalUser = localUserId.equals(this.userId);
-        if (isLocalUser) {
-            localMidis = PersistenceHelper.getMidiList(this);
-        }
+        localMidis = PersistenceHelper.getMidiList(this);
     }
 
     @Override
@@ -188,45 +183,6 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
     @Override
     public Context getContext() {
         return this;
-    }
-
-    @Override
-    public void play(String filePath) {
-        File midiFile = new File(filePath);
-        if (!midiFile.exists()) {
-            Log.e(Constant.MEDIA_TAG, "MIDI file cannot be found for playback");
-            return;
-        }
-        if (mediaPlayer == null) {
-            mediaPlayer = MediaPlayer.create(this, Uri.fromFile(midiFile));
-            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    mediaPlayer.reset();
-                }
-            });
-            previousFilePath = filePath;
-            mediaPlayer.start();
-        } else {
-            if (previousFilePath.equals(filePath)) {
-                if (mediaPlayer.isPlaying()) {
-                    mediaPlayer.pause();
-                } else {
-                    mediaPlayer.start();
-                }
-            } else {
-                mediaPlayer.release();
-                mediaPlayer = MediaPlayer.create(this, Uri.fromFile(midiFile));
-                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        mediaPlayer.reset();
-                    }
-                });
-                previousFilePath = filePath;
-                mediaPlayer.start();
-            }
-        }
     }
 
     private void updateNumTracksSubtitle(int count) {

@@ -38,7 +38,7 @@
         android:src="@drawable/ic_transparenticon"
         fab:fab_colorNormal="@color/ColorPrimary"
         fab:fab_colorPressed="@color/ColorPrimaryDark"
-        fab:fab_colorRipple="@color/White"
+        fab:fab_colorRipple="@color/ColorAccent"
         android:onClick="onMidifyButtonClicked"
         />
 

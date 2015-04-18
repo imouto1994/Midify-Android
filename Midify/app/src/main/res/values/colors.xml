@@ -1,6 +1,17 @@
 <resources>
-    <color name="ColorPrimary">#e62117</color>
-    <color name="ColorPrimaryDark">#c31c13</color>
+    <!-- Main Color -->
+    <color name="ColorPrimary">#E62117</color>
+    <color name="ColorPrimaryDark">#C31C13</color>
+    <color name="ColorAccent">#FF5252</color>
     <color name="White">#fff</color>
     <color name="Dark">#000</color>
+
+    <!-- Fork Button Color -->
+    <color name="UnforkedColorNormal">#FFEB3B</color>
+    <color name="UnforkedColorPressed">#F57F17</color>
+    <color name="UnforkedColorRipple">#FFD600</color>
+
+    <color name="ForkedColorNormal">#4CAF50</color>
+    <color name="ForkedColorPressed">#69F0AE</color>
+    <color name="ForkedColorRipple">#1B5E20</color>
 </resources>

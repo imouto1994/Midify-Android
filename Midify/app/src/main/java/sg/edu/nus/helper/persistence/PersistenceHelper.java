@@ -3,9 +3,12 @@ package sg.edu.nus.helper.persistence;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,7 +30,6 @@ public class PersistenceHelper {
                 Context.MODE_PRIVATE);
         String serializedDataFromPreferences = midiPreferences.getString(Constant.MIDI_PREFS_KEY, null);
         if (serializedDataFromPreferences == null) {
-            System.out.println("Cannot find the midi list. System will return an empty list");
             return new ArrayList<MidiPOJO>();
         }
         Type midiListType = new TypeToken<List<MidiPOJO>>(){}.getType();
@@ -124,5 +126,24 @@ public class PersistenceHelper {
         inChannel.transferTo(0, inChannel.size(), outChannel);
         inStream.close();
         outStream.close();
+    }
+
+    public static String saveMidiData(String fileName, byte[] data) {
+        String localFilePath = Constant.BASE_FILE_DIR + fileName + ".mid";
+        File localMidifFile = new File(localFilePath);
+        try {
+            if (!localMidifFile.exists()) {
+                if (!localMidifFile.createNewFile()) {
+                    throw new IOException();
+                }
+            }
+            FileOutputStream outputStream = new FileOutputStream(localMidifFile);
+            IOUtils.write(data, outputStream);
+            outputStream.close();
+            return localFilePath;
+        } catch (IOException e) {
+            Log.e(Constant.RECORD_TAG, "Error in storing midi file locally");
+        }
+        return null;
     }
 }

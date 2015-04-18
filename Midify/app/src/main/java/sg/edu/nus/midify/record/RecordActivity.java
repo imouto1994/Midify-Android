@@ -143,6 +143,7 @@ public class RecordActivity extends Activity {
                     public void onNegative(MaterialDialog dialog) {
                         super.onNegative(dialog);
                         dialog.dismiss();
+                        finish();
                     }
                 }).build();
 
@@ -170,7 +171,7 @@ public class RecordActivity extends Activity {
     private void createMidiFile(String fileName, boolean isPublicMidiFile) throws IOException{
 
         // Copy WAV File into new file with updated file name
-        String filePath = Constant.BASE_FILE_DIR + fileName
+        String filePath = Constant.BASE_FILE_DIR + fileName.replaceAll("\\s+", "")
                         + System.currentTimeMillis() / 1000 + ".wav";
         File output = new File(filePath);
         File input = new File(Constant.DEFAULT_WAV_FILE_PATH);
