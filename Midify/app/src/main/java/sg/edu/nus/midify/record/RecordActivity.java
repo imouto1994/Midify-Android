@@ -217,26 +217,12 @@ public class RecordActivity extends Activity {
                         @Override
                         public void success(Response response, Response response2) {
                             byte[] data = ((TypedByteArray) response.getBody()).getBytes();
-                            String localFilePath = Constant.BASE_FILE_DIR + newMidi.getFileName()
-                                    + System.currentTimeMillis() / 1000 + ".mid";
-                            File localMidifFile = new File(localFilePath);
-                            try {
-                                if (!localMidifFile.exists()) {
-                                    if (!localMidifFile.createNewFile()) {
-                                        throw new IOException();
-                                    }
-                                }
-                                FileOutputStream outputStream = new FileOutputStream(localMidifFile);
-                                IOUtils.write(data, outputStream);
-                                outputStream.close();
-                                newMidi.setLocalFilePath(localFilePath);
-                                PersistenceHelper.saveMidiList(recordInstance, midiList);
-                            } catch (IOException e) {
-                                Log.e(Constant.RECORD_TAG, "Error in storing midi file locally");
-                            } finally {
-                                progressDialog.dismiss();
-                                finish();
-                            }
+                            String localFilePath = PersistenceHelper.saveMidiData(newMidi.getFileName()
+                                    + System.currentTimeMillis() / 1000, data);
+                            newMidi.setLocalFilePath(localFilePath);
+                            PersistenceHelper.saveMidiList(recordInstance, midiList);
+                            progressDialog.dismiss();
+                            finish();
                         }
 
                         @Override
