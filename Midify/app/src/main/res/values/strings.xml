@@ -28,6 +28,10 @@
 
     <string name="dialog_remote_progress_title">Midi Remote Play</string>
     <string name="dialog_remote_progress_content">Downloading from server</string>
+
+    <string name="dialog_sync_progress_title">Midi Sync</string>
+    <string name="dialog_sync_progress_content">Syncing from server</string>
+
         <!-- CREATE MIDI DIALOG -->
     <string name="dialog_midi_name_input_title">Create MIDI</string>
     <string name="dialog_midi_file_name_title">Midi Name</string>

@@ -1,6 +1,7 @@
 package sg.edu.nus.midify.record;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
@@ -132,11 +133,7 @@ public class RecordActivity extends Activity {
                         RadioGroup isPublicRadioGroup = (RadioGroup) dialog.getCustomView()
                                 .findViewById(R.id.dialog_radio_group);
                         boolean isPublicMidiFile = isPublicRadioGroup.getCheckedRadioButtonId() == R.id.dialog_radio_button_public;
-                        try {
-                            createMidiFile(midiFileNameInput.getText().toString(), isPublicMidiFile);
-                        } catch (IOException e) {
-                            Log.e(Constant.RECORD_TAG, "Cannot convert due to invalid file path");
-                        }
+                        createMidiFile(midiFileNameInput.getText().toString(), isPublicMidiFile);
                     }
 
                     @Override
@@ -168,7 +165,7 @@ public class RecordActivity extends Activity {
         positiveAction.setEnabled(false);
     }
 
-    private void createMidiFile(String fileName, boolean isPublicMidiFile) throws IOException{
+    private void createMidiFile(String fileName, boolean isPublicMidiFile) {
 
         // Copy WAV File into new file with updated file name
         String filePath = Constant.BASE_FILE_DIR + fileName.replaceAll("\\s+", "")
@@ -199,7 +196,7 @@ public class RecordActivity extends Activity {
                     .progress(true, 0)
                     .show();
 
-            final Activity recordInstance = this;
+            final Context recordInstance = this;
             MidifyRestClient.instance()
                     .convertMidi(filePath, fileName, isPublicMidiFile,
                             newMidi.getDuration(), new Callback<MidiPOJO>() {
@@ -228,6 +225,9 @@ public class RecordActivity extends Activity {
                         @Override
                         public void failure(RetrofitError error) {
                             Log.e(Constant.REQUEST_TAG, "Reuqest Failed for URL: " + error.getUrl());
+                            Toast.makeText(recordInstance, "Download Failed", Toast.LENGTH_SHORT).show();
+                            progressDialog.dismiss();
+                            finish();
                         }
                     });
 
@@ -236,9 +236,13 @@ public class RecordActivity extends Activity {
                 @Override
                 public void failure(RetrofitError error) {
                     Log.e(Constant.REQUEST_TAG, "Reuqest Failed for URL: " + error.getUrl());
+                    Toast.makeText(recordInstance, "Convert Failed", Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
+                    finish();
                 }
             });
         } else {
+            Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
             finish();
         }
     }

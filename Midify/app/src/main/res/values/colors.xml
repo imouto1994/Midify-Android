@@ -14,4 +14,13 @@
     <color name="ForkedColorNormal">#4CAF50</color>
     <color name="ForkedColorPressed">#69F0AE</color>
     <color name="ForkedColorRipple">#1B5E20</color>
+
+    <!-- Sync Button Color -->
+    <color name="UploadColorNormal">#FFEB3B</color>
+    <color name="UploadColorPressed">#F57F17</color>
+    <color name="UploadColorRipple">#FFD600</color>
+
+    <color name="DownloadColorNormal">#FFEB3B</color>
+    <color name="DownloadColorPressed">#F57F17</color>
+    <color name="DownloadColorRipple">#FFD600</color>
 </resources>

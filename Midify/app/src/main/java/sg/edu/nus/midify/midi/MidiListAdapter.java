@@ -13,19 +13,13 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.melnykov.fab.FloatingActionButton;
-
-import org.apache.commons.io.IOUtils;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +36,8 @@ import sg.edu.nus.helper.http.MidifyRestClient;
 import sg.edu.nus.helper.persistence.PersistenceHelper;
 import sg.edu.nus.midify.R;
 
-public class MidiListAdapter extends RecyclerView.Adapter<MidiViewHolder> implements MidiViewHolder.ViewHolderOnClick, DownloadImageTask.DownloadImageTaskDelegate {
+public class MidiListAdapter extends RecyclerView.Adapter<MidiViewHolder>
+        implements MidiViewHolder.ViewHolderOnClick, DownloadImageTask.DownloadImageTaskDelegate {
     // List of MIDIs to be displayed
     private List<MidiPOJO> midiList;
     private boolean isLocalUser;
@@ -99,6 +94,7 @@ public class MidiListAdapter extends RecyclerView.Adapter<MidiViewHolder> implem
         holder.getDurationTextView().setText(getDurationStringFormat(midi.getDuration()));
         holder.getEditedTimeTextView().setText(getEditedTimeStringFormat(midi.getEditedTime()));
         updateForkButton(position, holder);
+        updateSyncButton(position, holder);
         if (ConnectionHelper.checkNetworkConnection()) {
             String profilePictureURL = ConnectionHelper.getFacebookProfilePictureURL(midi.getOwnerId());
             ConnectionHelper.downloadImage(holder.getProfilePictureView(), profilePictureURL, this);
@@ -107,16 +103,31 @@ public class MidiListAdapter extends RecyclerView.Adapter<MidiViewHolder> implem
 
     private void updateForkButton(int position, MidiViewHolder holder) {
         if (isLocalUser) {
-            holder.updateForkButton(MidiViewHolder.FORK_BUTTON_HIDDEN_STATE);
+            holder.updateForkButton(MidiViewHolder.ForkState.HIDDEN_STATE);
         } else {
             MidiPOJO currentMidi = midiList.get(position);
             if (localRefMidis.containsKey(currentMidi.getFileId())
                     || localRefMidis.containsKey(currentMidi.getRefId())) {
-                holder.updateForkButton(MidiViewHolder.FORK_BUTTON_FORKED_STATE);
+                holder.updateForkButton(MidiViewHolder.ForkState.FORK_STATE);
             } else if (localOwnMidis.containsKey(currentMidi.getRefId())) {
-                holder.updateForkButton(MidiViewHolder.FORK_BUTTON_HIDDEN_STATE);
+                holder.updateForkButton(MidiViewHolder.ForkState.HIDDEN_STATE);
             } else {
-                holder.updateForkButton(MidiViewHolder.FORK_BUTTON_UNFORKED_STATE);
+                holder.updateForkButton(MidiViewHolder.ForkState.UNFORKED_STATE);
+            }
+        }
+    }
+
+    private void updateSyncButton(int position, MidiViewHolder holder) {
+        if (!isLocalUser) {
+            holder.updateSyncButton(MidiViewHolder.SyncState.HIDDEN_STATE);
+        } else {
+            MidiPOJO currentMidi = midiList.get(position);
+            if (currentMidi.isOnlyRemote()) {
+                holder.updateSyncButton(MidiViewHolder.SyncState.DOWNLOAD_STATE);
+            } else if (currentMidi.isOnlyLocal()) {
+                holder.updateSyncButton(MidiViewHolder.SyncState.UPLOAD_STATE);
+            } else {
+                holder.updateSyncButton(MidiViewHolder.SyncState.HIDDEN_STATE);
             }
         }
     }
@@ -259,11 +270,11 @@ public class MidiListAdapter extends RecyclerView.Adapter<MidiViewHolder> implem
     }
 
     @Override
-    public int onForkButtonClick(View v, final int position, int forkState) {
+    public void onForkButtonClick(View v, final int position, MidiViewHolder.ForkState forkState) {
         MidiPOJO midi = midiList.get(position);
-        if (forkState == MidiViewHolder.FORK_BUTTON_HIDDEN_STATE) {
+        if (forkState == MidiViewHolder.ForkState.HIDDEN_STATE) {
             Toast.makeText(delegate.getContext(), "Cannot fork a track in hidden state", Toast.LENGTH_SHORT).show();
-        } else if (forkState == MidiViewHolder.FORK_BUTTON_FORKED_STATE) {
+        } else if (forkState == MidiViewHolder.ForkState.FORK_STATE) {
             Toast.makeText(delegate.getContext(), "Cannot fork an already forked track", Toast.LENGTH_SHORT).show();
         } else {
             if (ConnectionHelper.checkNetworkConnection()) {
@@ -315,7 +326,98 @@ public class MidiListAdapter extends RecyclerView.Adapter<MidiViewHolder> implem
             }
 
         }
-        return 0;
+    }
+
+    @Override
+    public void onSyncButtonClick(View v, final int position, MidiViewHolder.SyncState syncState) {
+        final MidiPOJO midi = midiList.get(position);
+        if (syncState == MidiViewHolder.SyncState.HIDDEN_STATE) {
+            Toast.makeText(delegate.getContext(), "No need to sync a track in hidden state", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!ConnectionHelper.checkNetworkConnection()) {
+            Toast.makeText(delegate.getContext(), "No network connection", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (syncState == MidiViewHolder.SyncState.UPLOAD_STATE) {
+            // Show progress dialog
+            final MaterialDialog progressDialog = new MaterialDialog.Builder(delegate.getContext())
+                    .title(R.string.dialog_convert_progress_title)
+                    .content(R.string.dialog_convert_progress_content_1)
+                    .cancelable(false)
+                    .progress(true, 0)
+                    .show();
+
+            MidifyRestClient.instance().convertMidi(midi.getLocalWavFilePath(), midi.getFileName(),
+                    midi.getIsPublic(), midi.getDuration(), new Callback<MidiPOJO>() {
+                @Override
+                public void success(MidiPOJO midiPOJO, Response response) {
+                    midi.setFileId(midiPOJO.getFileId());
+                    midi.setEditedTime(midiPOJO.getEditedTime());
+                    midi.setServerFilePath(midiPOJO.getServerFilePath());
+                    midi.setServerWavFilePath(midiPOJO.getServerWavFilePath());
+                    PersistenceHelper.saveMidiList(delegate.getContext(), localMidis);
+                    progressDialog.setContent(delegate.getContext().getString(R.string.dialog_convert_progress_content_2));
+
+                    // Start downloading
+                    MidifyRestClient.instance().downloadMidi(midi.getFileId(), new Callback<Response>() {
+                        @Override
+                        public void success(Response response, Response response2) {
+                            byte[] data = ((TypedByteArray) response.getBody()).getBytes();
+                            String localFilePath = PersistenceHelper.saveMidiData(midi.getFileName()
+                                    + System.currentTimeMillis() / 1000, data);
+                            midi.setLocalFilePath(localFilePath);
+                            PersistenceHelper.saveMidiList(delegate.getContext(), localMidis);
+                            progressDialog.dismiss();
+                            updateLocalMidisMap();
+                            notifyItemChanged(position);
+                            progressDialog.dismiss();
+                        }
+
+                        @Override
+                        public void failure(RetrofitError error) {
+                            Log.e(Constant.REQUEST_TAG, "Reuqest Failed for URL: " + error.getUrl());
+                            progressDialog.dismiss();
+                        }
+                    });
+
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.e(Constant.REQUEST_TAG, "Reuqest Failed for URL: " + error.getUrl());
+                    progressDialog.dismiss();
+                }
+            });
+
+        } else if (syncState == MidiViewHolder.SyncState.DOWNLOAD_STATE) {
+            final MaterialDialog progressDialog = new MaterialDialog.Builder(delegate.getContext())
+                    .title(R.string.dialog_sync_progress_title)
+                    .content(R.string.dialog_sync_progress_content)
+                    .cancelable(false)
+                    .progress(true, 0)
+                    .show();
+            MidifyRestClient.instance().downloadMidi(midi.getFileId(), new Callback<Response>() {
+                @Override
+                public void success(Response response, Response response2) {
+                    byte[] data = ((TypedByteArray) response.getBody()).getBytes();
+                    String localFilePath = PersistenceHelper.saveMidiData(midi.getFileName()
+                            + System.currentTimeMillis() / 1000, data);
+                    midi.setLocalFilePath(localFilePath);
+                    localMidis.add(midi);
+                    PersistenceHelper.saveMidiList(delegate.getContext(), localMidis);
+                    updateLocalMidisMap();
+                    notifyItemChanged(position);
+                    progressDialog.dismiss();
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.e(Constant.REQUEST_TAG, "Reuqest Failed for URL: " + error.getUrl());
+                    progressDialog.dismiss();
+                }
+            });
+        }
     }
 
     @Override

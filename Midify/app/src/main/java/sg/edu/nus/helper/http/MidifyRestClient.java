@@ -1,5 +1,7 @@
 package sg.edu.nus.helper.http;
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -16,10 +18,11 @@ import retrofit.http.Query;
 import retrofit.mime.TypedFile;
 import sg.edu.nus.POJOs.MidiPOJO;
 import sg.edu.nus.POJOs.UserPOJO;
+import sg.edu.nus.helper.Constant;
 
 public class MidifyRestClient {
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-    private static final String IP = "192.168.0.102";
+    private static final String IP = "192.168.0.101";
     private static final String PORT = "9000";
     private static final String BASE_URL = "http://" + IP + ":" + PORT + "/api";
 
@@ -74,10 +77,10 @@ public class MidifyRestClient {
 
     // CONVERT ACTION
     public void convertMidi(String filePath, String title, boolean isPublic, long duration,
-                           Callback<MidiPOJO> callback) throws IOException {
+                           Callback<MidiPOJO> callback) {
         File file = new File(filePath);
         if (!file.exists()) {
-            throw new IOException("File does not exist");
+            Log.e(Constant.REQUEST_TAG, "File requested for converting does not exist");
         }
         TypedFile uploadFile = new TypedFile("application/octet-stream", file);
         midifyApi.convertMidi(uploadFile, title, isPublic, duration, callback);

@@ -20,6 +20,7 @@ import com.pkmmte.view.CircularImageView;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -136,15 +137,31 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
                 @Override
                 public void success(List<MidiPOJO> midiPOJOs, Response response) {
                     if (isLocalUser) {
+                        List<String> truncatedFiles = new ArrayList<>();
                         Map<String, MidiPOJO> midiMap = new HashMap<>();
                         for (MidiPOJO midi : midiPOJOs) {
                             midiMap.put(midi.getFileId(), midi);
                         }
                         for (MidiPOJO localMidi: localMidis) {
-                            if (localMidi.getFileId() != null && midiMap.containsKey(localMidi.getFileId())) {
-                                midiMap.get(localMidi.getFileId()).setLocalFilePath(localMidi.getLocalFilePath());
-                            } else {
+                            if (localMidi.isOnlyLocal()) {
                                 midiPOJOs.add(localMidi);
+                            } else {
+                                if (midiMap.containsKey(localMidi.getFileId())) {
+                                    midiMap.get(localMidi.getFileId())
+                                            .setLocalFilePath(localMidi.getLocalFilePath());
+                                } else {
+                                    truncatedFiles.add(localMidi.getFileId());
+                                }
+                            }
+                        }
+
+                        if (truncatedFiles.size() > 0) {
+                            for (Iterator<MidiPOJO> iterator = localMidis.iterator(); iterator.hasNext();) {
+                                MidiPOJO currentMidi = iterator.next();
+                                if (truncatedFiles.contains(currentMidi.getFileId())) {
+                                    // Remove the current element from the iterator and the list.
+                                    iterator.remove();
+                                }
                             }
                         }
                     }

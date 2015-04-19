@@ -2,7 +2,6 @@ package sg.edu.nus.midify.midi;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.media.MediaPlayer;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -16,12 +15,17 @@ import sg.edu.nus.midify.R;
 
 public class MidiViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, MidiItemDelegate {
 
-    public static final int FORK_BUTTON_HIDDEN_STATE = 0;
-    public static final int FORK_BUTTON_UNFORKED_STATE = 1;
-    public static final int FORK_BUTTON_FORKED_STATE = 2;
+    public enum ForkState {
+        HIDDEN_STATE, UNFORKED_STATE, FORK_STATE
+    }
+
+    public enum SyncState {
+        HIDDEN_STATE, DOWNLOAD_STATE, UPLOAD_STATE
+    }
 
     private int position;
-    private int currentForkState;
+    private ForkState currentForkState;
+    private SyncState currentSyncState;
     private boolean isPaused;
 
     // UI Controls
@@ -29,8 +33,11 @@ public class MidiViewHolder extends RecyclerView.ViewHolder implements View.OnCl
     private TextView midiNameTextView;
     private TextView durationTextView;
     private TextView editedTimeTextView;
+
     private FloatingActionButton playButton;
     private FloatingActionButton forkButton;
+    private FloatingActionButton syncButton;
+
     private Context context;
 
     // Delegate
@@ -41,7 +48,8 @@ public class MidiViewHolder extends RecyclerView.ViewHolder implements View.OnCl
         this.delegate = delegate;
         this.context = context;
         this.isPaused = true;
-        this.currentForkState = FORK_BUTTON_HIDDEN_STATE;
+        this.currentForkState = ForkState.HIDDEN_STATE;
+        this.currentSyncState = SyncState.HIDDEN_STATE;
 
         // Assign UI Controls
         profilePictureView = (ImageView) itemView.findViewById(R.id.profile_picture);
@@ -56,28 +64,58 @@ public class MidiViewHolder extends RecyclerView.ViewHolder implements View.OnCl
         playButton.setOnClickListener(this);
 
         forkButton = (FloatingActionButton) itemView.findViewById(R.id.fork_button);
+        forkButton.setShadow(false);
         forkButton.setOnClickListener(this);
+
+        syncButton = (FloatingActionButton) itemView.findViewById(R.id.sync_button);
+        syncButton.setShadow(false);
+        syncButton.setOnClickListener(this);
 
     }
 
-    public void updateForkButton(int state) {
+    public void updateSyncButton(SyncState state) {
+        currentSyncState = state;
+        if (state == SyncState.HIDDEN_STATE) {
+            syncButton.setVisibility(View.GONE);
+        } else if (state == SyncState.UPLOAD_STATE) {
+            IconDrawable icon;
+            icon = new IconDrawable(context, Iconify.IconValue.fa_upload);
+            icon.color(Color.WHITE);
+            icon.sizeDp(16);
+            syncButton.setImageDrawable(icon);
+            syncButton.setColorNormalResId(R.color.ForkedColorNormal);
+            syncButton.setColorPressedResId(R.color.ForkedColorPressed);
+            syncButton.setColorRippleResId(R.color.ForkedColorRipple);
+        } else if (state == SyncState.DOWNLOAD_STATE) {
+            IconDrawable icon;
+            icon = new IconDrawable(context, Iconify.IconValue.fa_download);
+            icon.color(Color.WHITE);
+            icon.sizeDp(16);
+            syncButton.setImageDrawable(icon);
+            syncButton.setColorNormalResId(R.color.UnforkedColorNormal);
+            syncButton.setColorPressedResId(R.color.UnforkedColorPressed);
+            syncButton.setColorRippleResId(R.color.UnforkedColorRipple);
+        }
+    }
+
+    public void updateForkButton(ForkState state) {
         currentForkState = state;
-        if (state == FORK_BUTTON_HIDDEN_STATE) {
+        if (state == ForkState.HIDDEN_STATE) {
             forkButton.setVisibility(View.GONE);
-        } else if (state == FORK_BUTTON_FORKED_STATE) {
+        } else if (state == ForkState.FORK_STATE) {
             IconDrawable icon;
             icon = new IconDrawable(context, Iconify.IconValue.fa_check);
             icon.color(Color.WHITE);
-            icon.sizeDp(24);
+            icon.sizeDp(16);
             forkButton.setImageDrawable(icon);
             forkButton.setColorNormalResId(R.color.ForkedColorNormal);
             forkButton.setColorPressedResId(R.color.ForkedColorPressed);
             forkButton.setColorRippleResId(R.color.ForkedColorRipple);
-        } else if (state == FORK_BUTTON_UNFORKED_STATE) {
+        } else if (state == ForkState.UNFORKED_STATE) {
             IconDrawable icon;
             icon = new IconDrawable(context, Iconify.IconValue.fa_code_fork);
             icon.color(Color.WHITE);
-            icon.sizeDp(24);
+            icon.sizeDp(16);
             forkButton.setImageDrawable(icon);
             forkButton.setColorNormalResId(R.color.UnforkedColorNormal);
             forkButton.setColorPressedResId(R.color.UnforkedColorPressed);
@@ -127,12 +165,18 @@ public class MidiViewHolder extends RecyclerView.ViewHolder implements View.OnCl
         return this.forkButton;
     }
 
+    public FloatingActionButton getSyncButton() {
+        return this.syncButton;
+    }
+
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.play_button) {
             onPlayClick(v);
         } else if (v.getId() == R.id.fork_button) {
             onForkClick(v);
+        } else if (v.getId() == R.id.sync_button) {
+            onSyncClick(v);
         }
     }
 
@@ -144,10 +188,16 @@ public class MidiViewHolder extends RecyclerView.ViewHolder implements View.OnCl
         delegate.onForkButtonClick(v, this.position, this.currentForkState);
     }
 
-    public static interface ViewHolderOnClick {
+    private void onSyncClick(View v) {
+        delegate.onSyncButtonClick(v, this.position, this.currentSyncState);
+    }
+
+    public interface ViewHolderOnClick {
         // Delegate handle when 'Play' button is tapped
-        public void onPlayButtonClick(View v, int position, MidiItemDelegate itemDelegate);
+        void onPlayButtonClick(View v, int position, MidiItemDelegate itemDelegate);
         // Delegate handle when 'Fork' button is tapped
-        public int onForkButtonClick(View v, int position, int forkState);
+        void onForkButtonClick(View v, int position, ForkState forkState);
+        // Delegate handle when 'Sync' button is tapped
+        void onSyncButtonClick(View v, int position, SyncState syncState);
     }
 }
