@@ -55,6 +55,12 @@ public class UserFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 android.R.color.holo_red_dark,
                 android.R.color.holo_blue_dark,
                 android.R.color.holo_orange_dark);
+        refreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                refreshLayout.setRefreshing(true);
+            }
+        });
 
 
         // Initialize recycler view
@@ -115,7 +121,7 @@ public class UserFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     }
 
     public void refreshList() {
-        if (ConnectionHelper.checkNetworkConnection(getActivity())) {
+        if (ConnectionHelper.checkNetworkConnection()) {
             MidifyRestClient.instance().getFriends(new Callback<List<UserPOJO>>() {
                 @Override
                 public void success(List<UserPOJO> userPOJOs, Response response) {
@@ -132,7 +138,12 @@ public class UserFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             });
         } else {
             listAdapter.refreshUserList(new ArrayList<UserPOJO>());
-            refreshLayout.setRefreshing(false);
+            refreshLayout.post(new Runnable() {
+                @Override
+                public void run() {
+                    refreshLayout.setRefreshing(false);
+                }
+            });
         }
     }
 

@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 22
-    buildToolsVersion "21.1.2"
+    buildToolsVersion '21.1.2'
 
     defaultConfig {
         applicationId "sg.edu.nus.midify"
@@ -10,15 +10,6 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
-
-        ndk {
-            moduleName "Converter"
-        }
-
-        sourceSets.main {
-            jni.srcDirs = [] // This prevents the auto generation of Android.mk
-            jniLibs.srcDir 'src/main/libs'
-        }
     }
 
     buildTypes {
@@ -26,54 +17,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-    }
-
-    productFlavors {
-        x86 {
-            ndk {
-                abiFilter "x86"
-            }
-        }
-        mips {
-            ndk {
-                abiFilter "mips"
-            }
-        }
-        armv7 {
-            ndk {
-                abiFilter "armeabi-v7a"
-            }
-        }
-        arm {
-            ndk {
-                abiFilter "armeabi"
-            }
-        }
-        fat
-    }
-
-    // Build Native Code
-    task buildNative(type: Exec, description: 'Compile JNI source via NDK') {
-        def ndkDir = android.plugin.ndkFolder
-        commandLine "$ndkDir/ndk-build",
-                '-C', file('src/main/jni').absolutePath, // Change src/main/jni the relative path to your jni source
-                '-j', Runtime.runtime.availableProcessors(),
-                'all',
-                'NDK_DEBUG=1'
-    }
-
-    // Clean Native Code
-    task cleanNative(type: Exec, description: 'Clean JNI object files') {
-        def ndkDir = android.plugin.ndkFolder
-        commandLine "$ndkDir/ndk-build",
-                '-C', file('src/main/jni').absolutePath, // Change src/main/jni the relative path to your jni source
-                'clean'
-    }
-
-    clean.dependsOn 'cleanNative'
-
-    tasks.withType(JavaCompile) {
-        compileTask -> compileTask.dependsOn buildNative
     }
 }
 
@@ -84,24 +27,19 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.0.0'
     compile 'com.android.support:cardview-v7:22.0.0'
     compile 'com.android.support:recyclerview-v7:22.0.0'
-
+    compile 'org.apache.commons:commons-io:1.3.2'
     /* Iconify */
     compile 'com.joanzapata.android:android-iconify:1.0.9'
-
     /* Circular Image View */
     compile 'com.pkmmte.view:circularimageview:1.1'
-
     /* Floating Action Button */
     compile 'com.melnykov:floatingactionbutton:1.3.0'
-
     /* HTTP REQUEST */
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.squareup.okhttp:okhttp:2.3.0'
     compile 'com.google.code.gson:gson:2.3.1'
-
     /* FACEBOOK SDK */
     compile 'com.facebook.android:facebook-android-sdk:3.23.1'
-
     /* Material Dialogs */
     compile 'com.afollestad:material-dialogs:0.7.0.0'
 }

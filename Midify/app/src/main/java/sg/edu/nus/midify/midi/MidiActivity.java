@@ -2,6 +2,7 @@ package sg.edu.nus.midify.midi;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -12,13 +13,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.TypedValue;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.widget.TextView;
+
+import com.pkmmte.view.CircularImageView;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,15 +27,11 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 import sg.edu.nus.POJOs.MidiPOJO;
-import sg.edu.nus.POJOs.UserPOJO;
 import sg.edu.nus.helper.Constant;
 import sg.edu.nus.helper.http.ConnectionHelper;
 import sg.edu.nus.helper.http.MidifyRestClient;
-import sg.edu.nus.helper.persistence.PersistenceHelper;
-import sg.edu.nus.helper.recyclerview.DividerItemDecoration;
-import sg.edu.nus.helper.recyclerview.SectionedListAdapter;
+import sg.edu.nus.helper.persistence.PersistenceHelper;;
 import sg.edu.nus.midify.R;
-import sg.edu.nus.midify.main.user.UserListAdapter;
 
 public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayout.OnRefreshListener, MidiListAdapter.MidiListDelegate {
     // Private Variables
@@ -45,12 +40,10 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
     private List<MidiPOJO> localMidis;
 
     // UI Controls
+    private Toolbar toolbar;
     private SwipeRefreshLayout refreshLayout;
     private RecyclerView midiList;
     private MidiListAdapter listAdapter;
-
-    private MediaPlayer mediaPlayer;
-    private String previousFilePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,10 +59,20 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
         updateUserId(userId);
 
         // Initialize toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        TextView titleTextView = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        titleTextView.setText(intent.getStringExtra(Constant.INTENT_PARAM_USER_NAME));
+
+        TextView subtitleTextView = (TextView) toolbar.findViewById(R.id.toolbar_subtitle);
+        subtitleTextView.setText("Fetching...");
+
+        CircularImageView logo = (CircularImageView) toolbar.findViewById(R.id.toolbar_logo);
+        logo.setImageBitmap((Bitmap) intent.getParcelableExtra(Constant.INTENT_PARAM_USER_PROFILE_PICTURE));
 
         // Initialize refresh layout
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
@@ -96,7 +99,7 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
         // Configure item animation
         midiList.setItemAnimator(new DefaultItemAnimator());
         // Configure list adapter
-        listAdapter = new MidiListAdapter(this);
+        listAdapter = new MidiListAdapter(this, isLocalUser, localMidis);
         midiList.setAdapter(listAdapter);
         midiList.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -118,9 +121,7 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
         this.userId = userId;
         String localUserId = PersistenceHelper.getFacebookUserId(this);
         isLocalUser = localUserId.equals(this.userId);
-        if (isLocalUser) {
-            localMidis = PersistenceHelper.getMidiList(this);
-        }
+        localMidis = PersistenceHelper.getMidiList(this);
     }
 
     @Override
@@ -129,7 +130,7 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
     }
 
     private void refreshList() {
-        if (ConnectionHelper.checkNetworkConnection(this)) {
+        if (ConnectionHelper.checkNetworkConnection()) {
             final Context context = this;
             MidifyRestClient.instance().getMidisForUser(userId, new Callback<List<MidiPOJO>>() {
                 @Override
@@ -148,6 +149,7 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
                         }
                     }
                     listAdapter.refreshMidiList(midiPOJOs);
+                    updateNumTracksSubtitle(midiPOJOs.size());
                     refreshLayout.setRefreshing(false);
                 }
 
@@ -156,18 +158,23 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
                     Log.e(Constant.REQUEST_TAG, error.getMessage());
                     if (isLocalUser) {
                         List<MidiPOJO> localMidiList = PersistenceHelper.getMidiList(context);
+                        updateNumTracksSubtitle(localMidiList.size());
                         listAdapter.refreshMidiList(localMidiList);
                     } else {
+                        updateNumTracksSubtitle(0);
                         listAdapter.refreshMidiList(new ArrayList<MidiPOJO>());
                     }
+                    refreshLayout.setRefreshing(false);
                 }
             });
         } else {
             if (isLocalUser) {
                 List<MidiPOJO> localMidiList = PersistenceHelper.getMidiList(this);
                 listAdapter.refreshMidiList(localMidiList);
+                updateNumTracksSubtitle(localMidiList.size());
             } else {
                 listAdapter.refreshMidiList(new ArrayList<MidiPOJO>());
+                updateNumTracksSubtitle(0);
             }
             refreshLayout.setRefreshing(false);
         }
@@ -178,30 +185,14 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
         return this;
     }
 
-    @Override
-    public void play(String filePath) {
-        File midiFile = new File(filePath);
-        if (!midiFile.exists()) {
-            Log.e(Constant.MEDIA_TAG, "MIDI file cannot be found for playback");
-            return;
-        }
-        if (mediaPlayer == null) {
-            mediaPlayer = MediaPlayer.create(this, Uri.fromFile(midiFile));
-            previousFilePath = filePath;
-            mediaPlayer.start();
+    private void updateNumTracksSubtitle(int count) {
+        TextView subtitleTextView = (TextView) toolbar.findViewById(R.id.toolbar_subtitle);
+        if (count == 0) {
+            subtitleTextView.setText("No tracks");
+        } else if (count == 1) {
+            subtitleTextView.setText("1 track");
         } else {
-            if (previousFilePath.equals(filePath)) {
-                if (mediaPlayer.isPlaying()) {
-                    mediaPlayer.pause();
-                } else {
-                    mediaPlayer.start();
-                }
-            } else {
-                mediaPlayer.release();
-                mediaPlayer = MediaPlayer.create(this, Uri.fromFile(midiFile));
-                previousFilePath = filePath;
-                mediaPlayer.start();
-            }
+            subtitleTextView.setText(count + " tracks");
         }
     }
 }

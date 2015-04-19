@@ -3,13 +3,19 @@ package sg.edu.nus.helper.persistence;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,12 +24,12 @@ import sg.edu.nus.helper.Constant;
 
 public class PersistenceHelper {
 
+    // Retrieve the list of local Midis
     public static List<MidiPOJO> getMidiList(Context context) {
         SharedPreferences midiPreferences = context.getSharedPreferences(Constant.MIDI_PREFS_NAME,
                 Context.MODE_PRIVATE);
         String serializedDataFromPreferences = midiPreferences.getString(Constant.MIDI_PREFS_KEY, null);
         if (serializedDataFromPreferences == null) {
-            System.out.println("Cannot find the midi list. System will return an empty list");
             return new ArrayList<MidiPOJO>();
         }
         Type midiListType = new TypeToken<List<MidiPOJO>>(){}.getType();
@@ -34,6 +40,7 @@ public class PersistenceHelper {
         return midiList;
     }
 
+    // Save the given list of Midis
     public static void saveMidiList(Context context, List<MidiPOJO> midiList) {
         SharedPreferences midiPreferences = context.getSharedPreferences(Constant.MIDI_PREFS_NAME,
                 Context.MODE_PRIVATE);
@@ -41,6 +48,7 @@ public class PersistenceHelper {
         midiPreferences.edit().putString(Constant.MIDI_PREFS_KEY, json).apply();
     }
 
+    // Get the stored Facebook USER ID
     public static String getFacebookUserId(Context context) {
         SharedPreferences facebookPreferences = context.getSharedPreferences(Constant.FACEBOOK_PREFS_NAME,
                 Context.MODE_PRIVATE);
@@ -51,12 +59,14 @@ public class PersistenceHelper {
         return facebookUserId;
     }
 
+    // Save the given Facebook USER ID
     public static void saveFacebookUserId(Context context, String facebookUserId) {
         SharedPreferences facebookPreferences = context.getSharedPreferences(Constant.FACEBOOK_PREFS_NAME,
                 Context.MODE_PRIVATE);
         facebookPreferences.edit().putString(Constant.FACEBOOK_PREFS_USER_ID, facebookUserId).apply();
     }
 
+    // Get the stored Facebook USER NAME
     public static String getFacebookUserName(Context context) {
         SharedPreferences facebookPreferences = context.getSharedPreferences(Constant.FACEBOOK_PREFS_NAME,
                 Context.MODE_PRIVATE);
@@ -67,24 +77,28 @@ public class PersistenceHelper {
         return facebookUserId;
     }
 
+    // Save the given Facebook USER NAME
     public static void saveFacebookUserName(Context context, String facebookUserName) {
         SharedPreferences facebookPreferences = context.getSharedPreferences(Constant.FACEBOOK_PREFS_NAME,
                 Context.MODE_PRIVATE);
         facebookPreferences.edit().putString(Constant.FACEBOOK_PREFS_USER_NAME, facebookUserName).apply();
     }
 
+    // Get the stored Facebook Access Token
     public static String getFacebookToken(Context context) {
         SharedPreferences facebookPreferences = context.getSharedPreferences(Constant.FACEBOOK_PREFS_NAME,
                 Context.MODE_PRIVATE);
         return facebookPreferences.getString(Constant.FACEBOOK_PREFS_TOKEN, null);
     }
 
+    // Save the given Facebook Access Token
     public static void saveFacebookToken(Context context, String facebookToken) {
         SharedPreferences facebookPreferences = context.getSharedPreferences(Constant.FACEBOOK_PREFS_NAME,
                 Context.MODE_PRIVATE);
         facebookPreferences.edit().putString(Constant.FACEBOOK_PREFS_TOKEN, facebookToken).apply();
     }
 
+    // Save the given image locally
     public static void saveImage(String imageName, Bitmap finalBitmap) {
 
         String filePath = Constant.BASE_FILE_DIR + imageName + ".jpg";
@@ -101,5 +115,35 @@ public class PersistenceHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    // Copy a local file
+    public static void copy(File src, File dst) throws IOException {
+        FileInputStream inStream = new FileInputStream(src);
+        FileOutputStream outStream = new FileOutputStream(dst);
+        FileChannel inChannel = inStream.getChannel();
+        FileChannel outChannel = outStream.getChannel();
+        inChannel.transferTo(0, inChannel.size(), outChannel);
+        inStream.close();
+        outStream.close();
+    }
+
+    public static String saveMidiData(String fileName, byte[] data) {
+        String localFilePath = Constant.BASE_FILE_DIR + fileName + ".mid";
+        File localMidifFile = new File(localFilePath);
+        try {
+            if (!localMidifFile.exists()) {
+                if (!localMidifFile.createNewFile()) {
+                    throw new IOException();
+                }
+            }
+            FileOutputStream outputStream = new FileOutputStream(localMidifFile);
+            IOUtils.write(data, outputStream);
+            outputStream.close();
+            return localFilePath;
+        } catch (IOException e) {
+            Log.e(Constant.RECORD_TAG, "Error in storing midi file locally");
+        }
+        return null;
     }
 }

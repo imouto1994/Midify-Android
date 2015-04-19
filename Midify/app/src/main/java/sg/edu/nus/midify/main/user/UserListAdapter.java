@@ -2,6 +2,7 @@ package sg.edu.nus.midify.main.user;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -51,10 +52,11 @@ public class UserListAdapter extends RecyclerView.Adapter<UserViewHolder> implem
         }
         UserPOJO user = userList.get(position);
         holder.setUserId(user.getUserId());
+        holder.setUserName(user.getName());
         holder.getProfileNameView().setText(user.getName());
 
-        if (ConnectionHelper.checkNetworkConnection(context)) {
-            String profilePictureURL = ConnectionHelper.getFacebookProfilePictureURL(user.getUserId());
+        if (ConnectionHelper.checkNetworkConnection()) {
+            String profilePictureURL = ConnectionHelper.getSmallFacebookProfilePictureURL(user.getUserId());
             ConnectionHelper.downloadImage(holder.getProfilePictureView(), profilePictureURL);
         } else if (position == 0) {
             File localProfilePicture = new File(Constant.DEFAULT_PROFILE_PICTURE_PATH);
@@ -77,9 +79,11 @@ public class UserListAdapter extends RecyclerView.Adapter<UserViewHolder> implem
     }
 
     @Override
-    public void onViewHolderClick(View v, String userId) {
+    public void onViewHolderClick(View v, String userId, String userName, Bitmap imageBitmap) {
         Intent midiIntent = new Intent(context, MidiActivity.class);
         midiIntent.putExtra(Constant.INTENT_PARAM_USER_ID, userId);
+        midiIntent.putExtra(Constant.INTENT_PARAM_USER_NAME, userName);
+        midiIntent.putExtra(Constant.INTENT_PARAM_USER_PROFILE_PICTURE, imageBitmap);
         context.startActivity(midiIntent);
     }
 }

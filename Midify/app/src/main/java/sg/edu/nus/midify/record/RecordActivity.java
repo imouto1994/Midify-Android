@@ -1,9 +1,7 @@
 package sg.edu.nus.midify.record;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.media.AudioFormat;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -11,50 +9,47 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioGroup;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.joanzapata.android.iconify.IconDrawable;
+import com.joanzapata.android.iconify.Iconify;
+import com.melnykov.fab.FloatingActionButton;
+
+import org.apache.commons.io.IOUtils;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import retrofit.mime.TypedByteArray;
 import sg.edu.nus.POJOs.MidiPOJO;
+import sg.edu.nus.helper.AnimationHelper;
 import sg.edu.nus.helper.http.ConnectionHelper;
 import sg.edu.nus.helper.Constant;
 import sg.edu.nus.helper.http.MidifyRestClient;
 import sg.edu.nus.helper.persistence.PersistenceHelper;
-import sg.edu.nus.midi.MidiFile;
-import sg.edu.nus.midi.MidiTrack;
-import sg.edu.nus.midi.event.meta.Tempo;
-import sg.edu.nus.midi.event.meta.TimeSignature;
 import sg.edu.nus.midify.R;
 
 
-public class RecordActivity extends Activity implements InitTaskDelegate, RecordTaskDelegate, ConvertTaskDelegate {
-
-    private static final String RECORD_TAG = "record";
-    private static final String STOP_RECORD_TAG = "stop";
-    private static final int DEFAULT_TEMPO = 120;
-    private static final int DEFAULT_CHANNEL = 0;
+public class RecordActivity extends Activity {
 
     // UI Controls
-    private TextView statusTextView;
-    private Button recordButton;
+    private ImageView loadingDisc;
+    private FloatingActionButton recordButton;
 
-    private Recorder recorderProcess;
-    private List<Note> midiNotes;
-    private PcmToWavConverter pcmToWavConverter;
-    private WavToMidiConverter wavToMidiConverter;
+    // RECORD
+    private WavAudioRecorder audioRecorder;
+    private boolean hasRecord;
 
     // Persistence Data
-    private SharedPreferences midiPreferences;
     private List<MidiPOJO> midiList;
 
     @Override
@@ -63,129 +58,67 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
         setContentView(R.layout.activity_record);
 
         // UI Control Assignment
-        statusTextView = (TextView) findViewById(R.id.status_text_view);
-        recordButton = (Button) findViewById(R.id.record_button);
+        loadingDisc = (ImageView) findViewById(R.id.loading_disc);
+
+        recordButton = (FloatingActionButton) findViewById(R.id.record_button);
+        updateRecordButtonIcon(true);
+        recordButton.setShadow(true);
 
         // Loading Preferences
         midiList = PersistenceHelper.getMidiList(this);
 
-        // Background initializing task
-        InitTask initTask = new InitTask(this);
-        initTask.execute();
+        // Recording controls
+        audioRecorder = WavAudioRecorder.getInstance();
+        audioRecorder.setOutputFile(Constant.DEFAULT_WAV_FILE_PATH);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (audioRecorder != null) {
+            audioRecorder.release();
+        }
     }
 
     public void onRecordButtonClick (View view) {
-        if (recordButton.getText().toString().toLowerCase().equals(RECORD_TAG)) {
-            RecordTask task = new RecordTask(this);
-            task.execute();
-            recordButton.setText(STOP_RECORD_TAG);
-        } else if (recordButton.getText().toString().toLowerCase().equals(STOP_RECORD_TAG)) {
-            if (recorderProcess != null) {
-                recorderProcess.setRecording(false);
-            }
-            recordButton.setEnabled(false);
+        if (WavAudioRecorder.State.INITIALIZING == audioRecorder.getState()) {
+            audioRecorder.prepare();
+            audioRecorder.start();
+            hasRecord = true;
+            updateRecordButtonIcon(false);
+            AnimationHelper.rotateInfinitely(this, loadingDisc);
+        } else if (WavAudioRecorder.State.ERROR == audioRecorder.getState()) {
+            audioRecorder.release();
+            audioRecorder = WavAudioRecorder.getInstance();
+            audioRecorder.setOutputFile(Constant.DEFAULT_WAV_FILE_PATH);
+            updateRecordButtonIcon(true);
+            loadingDisc.clearAnimation();
+        } else {
+            audioRecorder.stop();
+            audioRecorder.reset();
+            updateRecordButtonIcon(true);
+            loadingDisc.clearAnimation();
+            fetchUserInput();
         }
     }
 
-
-    @Override
-    public Context getContext() {
-        return getApplicationContext();
-    }
-
-    //=============================================================================================
-    // INIT TASK DELEGATE
-    //=============================================================================================
-
-    /**
-     * Load the JNI Native Libs
-     */
-    @Override
-    public void loadNativeLibs() {
-        try {
-            System.loadLibrary("atm");
-        } catch (Exception ex) {
-            Log.e(Constant.JNI_TAG, "Failed to load native library: " + ex);
+    private void updateRecordButtonIcon(boolean isPaused) {
+        IconDrawable icon;
+        if (isPaused) {
+            icon = new IconDrawable(this, Iconify.IconValue.fa_microphone);
+        } else {
+            icon = new IconDrawable(this, Iconify.IconValue.fa_stop);
         }
+        icon.colorRes(R.color.ColorPrimary);
+        icon.sizeDp(24);
+        recordButton.setImageDrawable(icon);
     }
 
-    /**
-     * Initialize the two necessary converters
-     */
-    @Override
-    public void initializeConverters() {
-        // Initialize the PCM to WAV converter
-        pcmToWavConverter = new PcmToWavConverter(Constant.DEFAULT_PCM_FILE_PATH,
-                                                   Constant.DEFAULT_WAV_FILE_PATH);
-
-        // Initialize the WAV to MIDI converter
-        wavToMidiConverter = new WavToMidiConverter(Constant.DEFAULT_WAV_FILE_PATH);
-    }
-
-    //=============================================================================================
-    // RECORD TASK DELEGATE
-    //=============================================================================================
-    @Override
-    public void setRecorder(Recorder recorder) {
-        recorderProcess = recorder;
-    }
-
-    @Override
-    public void convertPCMToMidi() {
-        // Show progress dialog
-        MaterialDialog progressDialog = new MaterialDialog.Builder(this)
-                .title(R.string.dialog_convert_progress_title)
-                .content(R.string.dialog_midi_convert_progress_content)
-                .progress(true, 0)
-                .show();
-        ConvertTask task = new ConvertTask(this, progressDialog);
-        task.execute();
-    }
-
-    //=============================================================================================
-    // CONVERT TASK DELEGATE
-    //=============================================================================================
-    @Override
-    public void convertPcmToWav(MaterialDialog progressDialog) {
-        pcmToWavConverter.setBitPerSample(Constant.BITS_PER_SAMPLE_CONFIGURATION);
-        pcmToWavConverter.setChannels(Constant.AUDIO_NUMBER_OF_CHANNELS);
-        pcmToWavConverter.setSamplerate(Constant.AUDIO_SAMPLE_RATE_CONFIGURATION);
-        //pcmToWavConverter.convertPcm2wav();
-    }
-
-    @Override
-    public void convertWavToMidi(MaterialDialog progressDialog) {
-        // Set Wav Params
-        wavToMidiConverter.setBitspersample(Constant.BITS_PER_SAMPLE_CONFIGURATION);
-        wavToMidiConverter.setChannels(Constant.AUDIO_NUMBER_OF_CHANNELS);
-        wavToMidiConverter.setSamplerate(Constant.AUDIO_SAMPLE_RATE_CONFIGURATION);
-
-        //Set Engine Params
-        wavToMidiConverter.setBuffer_size(1024);
-        wavToMidiConverter.setOverlap_size(256);
-        wavToMidiConverter.setSilence(-70);
-        wavToMidiConverter.setThreshold(0.7f);
-        wavToMidiConverter.setType_onset("complex");
-        wavToMidiConverter.setType_onset2("");
-        wavToMidiConverter.setType_pitch("mcomb");
-        wavToMidiConverter.setAveraging((float) 1.0);
-
-        // Start converting
-        wavToMidiConverter.wav2midiNotes();
-    }
-
-    @Override
-    public void populateMidiNotes() {
-        this.midiNotes = wavToMidiConverter.getNotes();
-        for (int i = 0; i < midiNotes.size(); i++) {
-            Note note = midiNotes.get(i);
-            if (note == null) {
-                midiNotes.remove(i--);
-            }
-        }
-
+    // Fetch user input for the file name and whether this file should be public or private
+    public void fetchUserInput() {
         MaterialDialog uploadDialog = new MaterialDialog.Builder(this)
                 .title(R.string.dialog_midi_name_input_title)
+                .cancelable(false)
                 .customView(R.layout.dialog_create_midi, true)
                 .positiveText(R.string.dialog_upload_action_button)
                 .negativeText(R.string.dialog_cancel_action_button)
@@ -199,13 +132,18 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
                         RadioGroup isPublicRadioGroup = (RadioGroup) dialog.getCustomView()
                                 .findViewById(R.id.dialog_radio_group);
                         boolean isPublicMidiFile = isPublicRadioGroup.getCheckedRadioButtonId() == R.id.dialog_radio_button_public;
-                        createMidiFile(midiFileNameInput.getText().toString(), isPublicMidiFile);
+                        try {
+                            createMidiFile(midiFileNameInput.getText().toString(), isPublicMidiFile);
+                        } catch (IOException e) {
+                            Log.e(Constant.RECORD_TAG, "Cannot convert due to invalid file path");
+                        }
                     }
 
                     @Override
                     public void onNegative(MaterialDialog dialog) {
                         super.onNegative(dialog);
                         dialog.dismiss();
+                        finish();
                     }
                 }).build();
 
@@ -230,76 +168,87 @@ public class RecordActivity extends Activity implements InitTaskDelegate, Record
         positiveAction.setEnabled(false);
     }
 
-    private void createMidiFile(String midiFileName, boolean isPublicMidiFile) {
+    private void createMidiFile(String fileName, boolean isPublicMidiFile) throws IOException{
 
-        // Create MIDI tracks
-        MidiTrack tempoTrack = new MidiTrack();
-        MidiTrack noteTrack = new MidiTrack();
-
-        // First track is for tempo map
-        TimeSignature ts = new TimeSignature();
-        ts.setTimeSignature(4, 4, TimeSignature.DEFAULT_METER, TimeSignature.DEFAULT_DIVISION);
-        Tempo t = new Tempo();
-        t.setBpm(DEFAULT_TEMPO);
-        tempoTrack.insertEvent(ts);
-        tempoTrack.insertEvent(t);
-
-        // Second track is for note map
-        for (int i = 0; i < midiNotes.size(); i++) {
-            Note note = midiNotes.get(i);
-            int channel = DEFAULT_CHANNEL;
-            int pitch = note.note;
-            int velocity = note.vel;
-            long duration = 75;
-            long tick = (long) (note.time * 1000);
-
-            noteTrack.insertNote(channel, pitch, velocity, tick, duration);
-        }
-
-        // Create MIDI File
-        ArrayList<MidiTrack> tracks = new ArrayList<MidiTrack>();
-        tracks.add(tempoTrack);
-        tracks.add(noteTrack);
-
-        MidiFile midiFile = new MidiFile(MidiFile.DEFAULT_RESOLUTION, tracks);
-        String filePath = Constant.BASE_FILE_DIR + midiFileName
-                        + System.currentTimeMillis() / 1000 + ".mid";
-        Log.i(Constant.RECORD_TAG, filePath);
+        // Copy WAV File into new file with updated file name
+        String filePath = Constant.BASE_FILE_DIR + fileName.replaceAll("\\s+", "")
+                        + System.currentTimeMillis() / 1000 + ".wav";
         File output = new File(filePath);
+        File input = new File(Constant.DEFAULT_WAV_FILE_PATH);
         try {
-            midiFile.writeToFile(output);
+            PersistenceHelper.copy(input, output);
         } catch(IOException e) {
-            Log.e(Constant.RECORD_TAG, "Cannot write the MIDI file output");
+            Log.e(Constant.RECORD_TAG, "Cannot copy the wav file");
         }
 
+        // Store temporary MIDI file locally
         String facebookUserId = PersistenceHelper.getFacebookUserId(this);
-
         final MidiPOJO newMidi = MidiPOJO.
-                createLocalMidiWithoutId(midiFileName, filePath, facebookUserId, isPublicMidiFile);
+                createLocalMidiWithoutId(fileName, filePath, facebookUserId,
+                        audioRecorder.getDuration(), isPublicMidiFile);
         midiList.add(newMidi);
         PersistenceHelper.saveMidiList(this, midiList);
-        if (ConnectionHelper.checkNetworkConnection(this)) {
-            final Activity recordInstance = this;
-            try {
-                MidifyRestClient.instance()
-                        .uploadMidi(filePath, midiFileName, isPublicMidiFile, new Callback<MidiPOJO>() {
-                    @Override
-                    public void success(MidiPOJO midiPOJO, Response response) {
-                        newMidi.setFileId(midiPOJO.getFileId());
-                        newMidi.setEditedTime(midiPOJO.getEditedTime());
-                        newMidi.setServerFilePath(midiPOJO.getServerFilePath());
-                        PersistenceHelper.saveMidiList(recordInstance, midiList);
-                        recordInstance.finish();
-                    }
 
-                    @Override
-                    public void failure(RetrofitError error) {
-                        Log.e(Constant.REQUEST_TAG, "Reuqest Failed for URL: " + error.getUrl());
-                    }
-                });
-            } catch (IOException e) {
-                Log.e(Constant.RECORD_TAG, "Cannot upload due to invalid MIDI file path");
-            }
+        // Start converting
+        if (ConnectionHelper.checkNetworkConnection()) {
+            // Show progress dialog
+            final MaterialDialog progressDialog = new MaterialDialog.Builder(this)
+                    .title(R.string.dialog_convert_progress_title)
+                    .content(R.string.dialog_convert_progress_content_1)
+                    .cancelable(false)
+                    .progress(true, 0)
+                    .show();
+
+            final Activity recordInstance = this;
+            MidifyRestClient.instance()
+                    .convertMidi(filePath, fileName, isPublicMidiFile,
+                            newMidi.getDuration(), new Callback<MidiPOJO>() {
+                @Override
+                public void success(MidiPOJO midiPOJO, Response response) {
+                    newMidi.setFileId(midiPOJO.getFileId());
+                    newMidi.setEditedTime(midiPOJO.getEditedTime());
+                    newMidi.setServerFilePath(midiPOJO.getServerFilePath());
+                    newMidi.setServerWavFilePath(midiPOJO.getServerWavFilePath());
+                    PersistenceHelper.saveMidiList(recordInstance, midiList);
+                    progressDialog.setContent(getString(R.string.dialog_convert_progress_content_2));
+
+                    // Start downloading
+                    MidifyRestClient.instance().downloadMidi(newMidi.getFileId(), new Callback<Response>() {
+                        @Override
+                        public void success(Response response, Response response2) {
+                            byte[] data = ((TypedByteArray) response.getBody()).getBytes();
+                            String localFilePath = PersistenceHelper.saveMidiData(newMidi.getFileName()
+                                    + System.currentTimeMillis() / 1000, data);
+                            newMidi.setLocalFilePath(localFilePath);
+                            PersistenceHelper.saveMidiList(recordInstance, midiList);
+                            progressDialog.dismiss();
+                            finish();
+                        }
+
+                        @Override
+                        public void failure(RetrofitError error) {
+                            Log.e(Constant.REQUEST_TAG, "Reuqest Failed for URL: " + error.getUrl());
+                        }
+                    });
+
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.e(Constant.REQUEST_TAG, "Reuqest Failed for URL: " + error.getUrl());
+                }
+            });
+        } else {
+            finish();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!hasRecord) {
+            finish();
+        } else {
+            Toast.makeText(this, "The recording phase is currently in progress", Toast.LENGTH_SHORT).show();
         }
     }
 }

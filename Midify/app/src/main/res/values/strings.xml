@@ -16,15 +16,27 @@
     <string name="text_play_button">Play</string>
 
     <!-- MIDI DIALOGS -->
-    <string name="dialog_midi_name_input_title">Create MIDI</string>
+
+        <!-- CONVERTING MIDI DIALOGS -->
     <string name="dialog_convert_progress_title">Midi Converting</string>
-    <string name="dialog_midi_convert_progress_content">Converting from audio to MIDI</string>
+    <string name="dialog_convert_progress_content_1">Converting in server</string>
+    <string name="dialog_convert_progress_content_2">Downloading from server</string>
+
+    <string name="dialog_fork_progress_title">Midi Fork</string>
+    <string name="dialog_fork_progress_content_1">Sending fork request</string>
+    <string name="dialog_fork_progress_content_2">Downloading from server</string>
+
+    <string name="dialog_remote_progress_title">Midi Remote Play</string>
+    <string name="dialog_remote_progress_content">Downloading from server</string>
+        <!-- CREATE MIDI DIALOG -->
+    <string name="dialog_midi_name_input_title">Create MIDI</string>
     <string name="dialog_midi_file_name_title">Midi Name</string>
     <string name="dialog_radio_button_public">Public</string>
     <string name="dialog_radio_button_private">Private</string>
     <string name="dialog_upload_action_button">Upload</string>
     <string name="dialog_cancel_action_button">Cancel</string>
 
-    <string name="hello_world">Hello world!</string>
+
+    <string name="empty_description"></string>
 
 </resources>

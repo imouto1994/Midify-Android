@@ -12,9 +12,11 @@ import android.widget.ImageView;
 import java.io.InputStream;
 
 import sg.edu.nus.helper.Constant;
+import sg.edu.nus.midify.MidifyApp;
 
 public class ConnectionHelper {
-    public static boolean checkNetworkConnection(Context context) {
+    public static boolean checkNetworkConnection() {
+        Context context = MidifyApp.getContext();
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo ni = cm.getActiveNetworkInfo();
         if (ni == null) {
@@ -29,6 +31,12 @@ public class ConnectionHelper {
         task.execute();
     }
 
+    public static void downloadImage(ImageView imageView, String imageURL,
+                                     DownloadImageTask.DownloadImageTaskDelegate delegate) {
+        DownloadImageTask task = new DownloadImageTask(imageView, imageURL, delegate);
+        task.execute();
+    }
+
     public static void saveImage(String fileName, String imageURL) {
         SaveImageTask task = new SaveImageTask(fileName, imageURL);
         task.execute();
@@ -36,6 +44,10 @@ public class ConnectionHelper {
 
     public static String getFacebookProfilePictureURL(String userId) {
         return "https://graph.facebook.com/" + userId + "/picture?width=9999";
+    }
+
+    public static String getSmallFacebookProfilePictureURL(String userId) {
+        return "https://graph.facebook.com/" + userId + "/picture?type=large";
     }
 
 }

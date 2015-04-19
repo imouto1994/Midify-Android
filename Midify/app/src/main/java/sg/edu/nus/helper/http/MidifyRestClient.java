@@ -10,14 +10,16 @@ import java.util.List;
 import retrofit.Callback;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
+import retrofit.client.Response;
 import retrofit.converter.GsonConverter;
+import retrofit.http.Query;
 import retrofit.mime.TypedFile;
 import sg.edu.nus.POJOs.MidiPOJO;
 import sg.edu.nus.POJOs.UserPOJO;
 
 public class MidifyRestClient {
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-    private static final String IP = "192.168.0.101";
+    private static final String IP = "192.168.0.102";
     private static final String PORT = "9000";
     private static final String BASE_URL = "http://" + IP + ":" + PORT + "/api";
 
@@ -48,7 +50,7 @@ public class MidifyRestClient {
         Gson gson = new GsonBuilder().setDateFormat(DATE_FORMAT).create();
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setConverter(new GsonConverter(gson))
-                .setLogLevel(RestAdapter.LogLevel.FULL)
+                .setLogLevel(RestAdapter.LogLevel.BASIC)
                 .setEndpoint(BASE_URL)
                 .setRequestInterceptor(requestInterceptor)
                 .build();
@@ -65,15 +67,24 @@ public class MidifyRestClient {
         midifyApi.retrieveMidiForUser(userId, callback);
     }
 
-    // UPLOAD ACTION
-    public void uploadMidi(String filePath, String title, boolean isPublic,
+    // FORK ACTION
+    public void forkMidi(MidiPOJO requestParams, Callback<MidiPOJO> callback) {
+        midifyApi.forkMidi(requestParams, callback);
+    }
+
+    // CONVERT ACTION
+    public void convertMidi(String filePath, String title, boolean isPublic, long duration,
                            Callback<MidiPOJO> callback) throws IOException {
         File file = new File(filePath);
         if (!file.exists()) {
             throw new IOException("File does not exist");
         }
         TypedFile uploadFile = new TypedFile("application/octet-stream", file);
-        midifyApi.uploadMidi(uploadFile, title, isPublic, callback);
+        midifyApi.convertMidi(uploadFile, title, isPublic, duration, callback);
+    }
+
+    public void downloadMidi(String fileId, Callback<Response> callback) {
+        midifyApi.downloadMidi(fileId, callback);
     }
 
     // AUTHENTICATE ACTION

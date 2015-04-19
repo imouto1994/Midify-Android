@@ -3,10 +3,13 @@ package sg.edu.nus.POJOs;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
+import java.util.Map;
+
+import sg.edu.nus.helper.Constant;
 
 /* MIDI POJO */
 public class MidiPOJO {
-    private static final String UNDEFINED = "undefined";
+    public static final String UNDEFINED = "undefined";
 
     @SerializedName("_id")
     private String fileId;
@@ -28,6 +31,14 @@ public class MidiPOJO {
 
     private String localFilePath;
 
+    @SerializedName("duration")
+    private long duration;
+
+    @SerializedName("wavFilePath")
+    private String serverWavFilePath;
+
+    private String localWavFilePath;
+
     @SerializedName("isPublic")
     private boolean isPublic;
 
@@ -35,13 +46,14 @@ public class MidiPOJO {
     private Date editedTime;
 
     public static MidiPOJO createLocalMidi(String fileName, String filePath, String fileId,
-                                           String userId, boolean isPublic) {
+                                           String userId, long duration, boolean isPublic) {
         MidiPOJO instance = new MidiPOJO();
         instance.fileName = fileName;
-        instance.localFilePath = filePath;
+        instance.localWavFilePath = filePath;
         instance.fileId = fileId;
         instance.ownerId = userId;
         instance.userId = userId;
+        instance.duration = duration;
         instance.isPublic = isPublic;
         instance.editedTime = new Date();
 
@@ -49,16 +61,35 @@ public class MidiPOJO {
     }
 
     public static MidiPOJO createLocalMidiWithoutId(String fileName, String filePath,
-                                                    String userId, boolean isPublic) {
-        return createLocalMidi(fileName, filePath, UNDEFINED + System.currentTimeMillis() / 1000, userId, isPublic);
+                                                    String userId, long duration, boolean isPublic) {
+        return createLocalMidi(fileName, filePath, UNDEFINED + System.currentTimeMillis() / 1000,
+                userId, duration, isPublic);
     }
+
+    public static MidiPOJO createBodyRequest(Map<String, String> params) {
+        MidiPOJO instanceRequest = new MidiPOJO();
+        for (Map.Entry<String, String> entry : params.entrySet())
+        {
+            if (entry.getKey().equals(Constant.REQUEST_PARAM_REF_ID)) {
+                instanceRequest.setRefId(entry.getValue());
+            } else if (entry.getKey().equals(Constant.REQUEST_PARAM_FILE_ID)) {
+                instanceRequest.setFileId(entry.getValue());
+            }
+        }
+        return instanceRequest;
+    }
+
 
     public boolean isOnlyLocal() {
         return this.getFileId().startsWith(UNDEFINED);
     }
 
     public boolean isOnlyRemote() {
-        return this.getLocalFilePath() == null;
+        return !this.getFileId().startsWith(UNDEFINED) && this.getLocalFilePath() == null;
+    }
+
+    public boolean isRef() {
+        return this.getRefId() != null;
     }
 
     public String getFileName() {
@@ -69,8 +100,16 @@ public class MidiPOJO {
         return this.localFilePath;
     }
 
+    public String getLocalWavFilePath() {
+        return this.localWavFilePath;
+    }
+
     public String getServerFilePath() {
         return this.serverFilePath;
+    }
+
+    public String getServerWavFilePath() {
+        return this.serverWavFilePath;
     }
 
     public String getFileId() {
@@ -89,6 +128,10 @@ public class MidiPOJO {
         return this.userId;
     }
 
+    public long getDuration() {
+        return this.duration;
+    }
+
     public boolean getIsPublic() {
         return this.isPublic;
     }
@@ -105,8 +148,16 @@ public class MidiPOJO {
         this.localFilePath = filePath;
     }
 
+    public void setLocalWavFilePath(String filePath) {
+        this.localWavFilePath = filePath;
+    }
+
     public void setServerFilePath(String filePath) {
         this.serverFilePath = filePath;
+    }
+
+    public void setServerWavFilePath(String filePath) {
+        this.serverWavFilePath = filePath;
     }
 
     public void setFileId(String fileId) {
@@ -127,6 +178,10 @@ public class MidiPOJO {
 
     public void setIsPublic(boolean isPublic) {
         this.isPublic = isPublic;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
     }
 
     public void setEditedTime(Date time) {
