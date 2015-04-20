@@ -84,12 +84,15 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
                 android.R.color.holo_orange_dark);
 
         // Show indicator initially
-        refreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                refreshLayout.setRefreshing(true);
-            }
-        });
+        if (ConnectionHelper.checkNetworkConnection()) {
+            refreshLayout.post(new Runnable() {
+                @Override
+                public void run() {
+                    refreshLayout.setRefreshing(true);
+                }
+            });
+        }
+
 
         // Initialize recycler view
         midiList = (RecyclerView) findViewById(R.id.midis_list);

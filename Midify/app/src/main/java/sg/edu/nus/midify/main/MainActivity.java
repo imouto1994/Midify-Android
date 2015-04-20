@@ -33,6 +33,7 @@ import sg.edu.nus.helper.http.MidifyRestClient;
 import sg.edu.nus.helper.persistence.PersistenceHelper;
 import sg.edu.nus.helper.slidingtab.SlidingTabLayout;
 import sg.edu.nus.midify.R;
+import sg.edu.nus.midify.main.activity.ActivityFragment;
 import sg.edu.nus.midify.main.login.LoginFragment;
 import sg.edu.nus.midify.main.user.UserFragment;
 import sg.edu.nus.midify.record.RecordActivity;
@@ -102,7 +103,7 @@ public class MainActivity extends ActionBarActivity {
         // Center the tabs in the layout
         slidingTabLayout.setDistributeEvenly(true);
         slidingTabLayout.setViewPager(viewPager);
-        slidingTabLayout.setCustomTabColorizer(new SlidingTabLayout.TabColorizer(){
+        slidingTabLayout.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
 
             @Override
             public int getIndicatorColor(int position) {
@@ -227,10 +228,13 @@ public class MainActivity extends ActionBarActivity {
                         // Save Local Profile Picture
                         String profilePictureURL = ConnectionHelper.getFacebookProfilePictureURL(user.getId());
                         ConnectionHelper.saveImage(Constant.DEFAULT_PROFILE_PICTURE_NAME, profilePictureURL);
-                        // Add Local User
+                        // Add Local User & Refresh List of Users
                         UserFragment userFragment = (UserFragment) fragments[USER_FRAGMENT_INDEX];
                         userFragment.getListAdapter().addDefaultUser();
                         userFragment.refreshList();
+                        // Refresh list of activities
+                        ActivityFragment activityFragment = (ActivityFragment) fragments[ACTIVITY_FRAGMENT_INDEX];
+                        activityFragment.refreshList();
 
                         MidifyRestClient.instance().authenticate(session.getAccessToken(),
                                 user.getId(),

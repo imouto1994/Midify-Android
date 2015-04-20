@@ -13,6 +13,7 @@ import retrofit.http.POST;
 import retrofit.http.Part;
 import retrofit.http.Query;
 import retrofit.mime.TypedFile;
+import sg.edu.nus.POJOs.ActivityPOJO;
 import sg.edu.nus.POJOs.MidiPOJO;
 import sg.edu.nus.POJOs.UserPOJO;
 
@@ -45,5 +46,7 @@ public interface MidifyService {
     @GET("/facebook/friends")
     void retrieveFriends(Callback<List<UserPOJO>> callback);
 
-
+    // Retrieve activities
+    @GET("/activity/user")
+    void retrieveActivities(Callback<List<ActivityPOJO>> callback);
 }
