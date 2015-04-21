@@ -2,7 +2,9 @@ package sg.edu.nus.midify.record;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -42,9 +44,12 @@ import sg.edu.nus.midify.R;
 
 public class RecordActivity extends Activity {
 
+    private static final int INTENT_CODE_PICKING_AUDIO = 1;
+
     // UI Controls
     private ImageView loadingDisc;
     private FloatingActionButton recordButton;
+    private FloatingActionButton pickButton;
 
     // RECORD
     private WavAudioRecorder audioRecorder;
@@ -54,7 +59,7 @@ public class RecordActivity extends Activity {
     private List<MidiPOJO> midiList;
 
     @Override
-    protected void onCreate (Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
 
@@ -64,6 +69,10 @@ public class RecordActivity extends Activity {
         recordButton = (FloatingActionButton) findViewById(R.id.record_button);
         updateRecordButtonIcon(true);
         recordButton.setShadow(true);
+
+        pickButton = (FloatingActionButton) findViewById(R.id.pick_button);
+        updatePickButtonIcon();
+        pickButton.setShadow(true);
 
         // Loading Preferences
         midiList = PersistenceHelper.getMidiList(this);
@@ -81,7 +90,7 @@ public class RecordActivity extends Activity {
         }
     }
 
-    public void onRecordButtonClick (View view) {
+    public void onRecordButtonClick(View view) {
         if (WavAudioRecorder.State.INITIALIZING == audioRecorder.getState()) {
             audioRecorder.prepare();
             audioRecorder.start();
@@ -99,8 +108,30 @@ public class RecordActivity extends Activity {
             audioRecorder.reset();
             updateRecordButtonIcon(true);
             loadingDisc.clearAnimation();
-            fetchUserInput();
+            fetchUserInput(null);
         }
+    }
+
+    public void onPickButtonClick(View view) {
+        Intent intentPick = new Intent();
+        intentPick.setType("audio/wav");
+        intentPick.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(intentPick, INTENT_CODE_PICKING_AUDIO);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode,int resultCode,Intent data){
+
+        if(requestCode == INTENT_CODE_PICKING_AUDIO){
+
+            if(resultCode == RESULT_OK){
+                //the selected audio.
+                Uri uri = data.getData();
+                File targetFile = new File(uri.getPath());
+                fetchUserInput(targetFile.getAbsolutePath());
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void updateRecordButtonIcon(boolean isPaused) {
@@ -115,8 +146,15 @@ public class RecordActivity extends Activity {
         recordButton.setImageDrawable(icon);
     }
 
+    private void updatePickButtonIcon() {
+        IconDrawable icon = new IconDrawable(this, Iconify.IconValue.fa_folder_open);
+        icon.colorRes(R.color.UnforkedColorNormal);
+        icon.sizeDp(24);
+        pickButton.setImageDrawable(icon);
+    }
+
     // Fetch user input for the file name and whether this file should be public or private
-    public void fetchUserInput() {
+    public void fetchUserInput(final String filePath) {
         MaterialDialog uploadDialog = new MaterialDialog.Builder(this)
                 .title(R.string.dialog_midi_name_input_title)
                 .cancelable(false)
@@ -133,7 +171,14 @@ public class RecordActivity extends Activity {
                         RadioGroup isPublicRadioGroup = (RadioGroup) dialog.getCustomView()
                                 .findViewById(R.id.dialog_radio_group);
                         boolean isPublicMidiFile = isPublicRadioGroup.getCheckedRadioButtonId() == R.id.dialog_radio_button_public;
-                        createMidiFile(midiFileNameInput.getText().toString(), isPublicMidiFile);
+                        if (filePath == null) {
+                            createMidiFile(Constant.DEFAULT_WAV_FILE_PATH,
+                                    midiFileNameInput.getText().toString(), isPublicMidiFile);
+                        } else {
+                            createMidiFile(filePath,
+                                    midiFileNameInput.getText().toString(), isPublicMidiFile);
+                        }
+
                     }
 
                     @Override
@@ -165,13 +210,13 @@ public class RecordActivity extends Activity {
         positiveAction.setEnabled(false);
     }
 
-    private void createMidiFile(String fileName, boolean isPublicMidiFile) {
+    private void createMidiFile(String inputPath, String fileName, boolean isPublicMidiFile) {
 
         // Copy WAV File into new file with updated file name
         String filePath = Constant.BASE_FILE_DIR + fileName.replaceAll("\\s+", "")
                         + System.currentTimeMillis() / 1000 + ".wav";
         File output = new File(filePath);
-        File input = new File(Constant.DEFAULT_WAV_FILE_PATH);
+        File input = new File(inputPath);
         try {
             PersistenceHelper.copy(input, output);
         } catch(IOException e) {

@@ -20,17 +20,39 @@
         android:layout_marginBottom="100dp"
         android:src="@drawable/loadingdisc" />
 
+    <!-- Dummy View For Reference -->
+    <View
+        android:id="@+id/anchor"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerInParent="true" />
+
     <com.melnykov.fab.FloatingActionButton
         android:id="@+id/record_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="16dp"
+        android:layout_toStartOf="@+id/anchor"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="16dp"
         fab:fab_colorNormal="@color/White"
         fab:fab_colorPressed="@color/White"
         fab:fab_colorRipple="@color/White"
         android:onClick="onRecordButtonClick"
+        />
+
+    <com.melnykov.fab.FloatingActionButton
+        android:id="@+id/pick_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toEndOf="@+id/anchor"
+        android:layout_marginStart="12dp"
+        android:layout_marginBottom="16dp"
+        fab:fab_colorNormal="@color/White"
+        fab:fab_colorPressed="@color/White"
+        fab:fab_colorRipple="@color/White"
+        android:onClick="onPickButtonClick"
         />
 
 </RelativeLayout>
