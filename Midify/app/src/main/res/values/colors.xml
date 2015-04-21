@@ -2,25 +2,25 @@
     <!-- Main Color -->
     <color name="ColorPrimary">#F44336</color>
     <color name="ColorPrimaryDark">#B71C1C</color>
-    <color name="ColorAccent">#FF5252</color>
+    <color name="ColorAccent">#FF1744</color>
     <color name="White">#fff</color>
     <color name="Dark">#000</color>
 
     <!-- Fork Button Color -->
-    <color name="UnforkedColorNormal">#FFEB3B</color>
-    <color name="UnforkedColorPressed">#F57F17</color>
-    <color name="UnforkedColorRipple">#FFD600</color>
+    <color name="UnforkedColorNormal">#2196F3</color>
+    <color name="UnforkedColorPressed">#0D47A1</color>
+    <color name="UnforkedColorRipple">#1976D2</color>
 
     <color name="ForkedColorNormal">#4CAF50</color>
     <color name="ForkedColorPressed">#69F0AE</color>
     <color name="ForkedColorRipple">#1B5E20</color>
 
     <!-- Sync Button Color -->
-    <color name="UploadColorNormal">#FFEB3B</color>
-    <color name="UploadColorPressed">#F57F17</color>
-    <color name="UploadColorRipple">#FFD600</color>
+    <color name="UploadColorNormal">#2196F3</color>
+    <color name="UploadColorPressed">#0D47A1</color>
+    <color name="UploadColorRipple">#1976D2</color>
 
-    <color name="DownloadColorNormal">#FFEB3B</color>
-    <color name="DownloadColorPressed">#F57F17</color>
-    <color name="DownloadColorRipple">#FFD600</color>
+    <color name="DownloadColorNormal">#2196F3</color>
+    <color name="DownloadColorPressed">#0D47A1</color>
+    <color name="DownloadColorRipple">#1976D2</color>
 </resources>
