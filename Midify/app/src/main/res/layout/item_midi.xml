@@ -22,7 +22,7 @@
             android:layout_height="200dp"
             android:id="@+id/play_panel">
 
-            <ImageView
+            <com.loopj.android.image.SmartImageView
                 android:id="@+id/profile_picture"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

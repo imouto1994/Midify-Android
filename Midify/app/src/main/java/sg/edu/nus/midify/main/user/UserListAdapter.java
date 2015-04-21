@@ -56,8 +56,8 @@ public class UserListAdapter extends RecyclerView.Adapter<UserViewHolder> implem
         holder.getProfileNameView().setText(user.getName());
 
         if (ConnectionHelper.checkNetworkConnection()) {
-            String profilePictureURL = ConnectionHelper.getSmallFacebookProfilePictureURL(user.getUserId());
-            ConnectionHelper.downloadImage(holder.getProfilePictureView(), profilePictureURL);
+            String profilePictureURL = ConnectionHelper.getFacebookProfilePictureURL(user.getUserId());
+            holder.getProfilePictureView().setImageUrl(profilePictureURL);
         } else if (position == 0) {
             File localProfilePicture = new File(Constant.DEFAULT_PROFILE_PICTURE_PATH);
             if (localProfilePicture.exists()) {
@@ -79,11 +79,10 @@ public class UserListAdapter extends RecyclerView.Adapter<UserViewHolder> implem
     }
 
     @Override
-    public void onViewHolderClick(View v, String userId, String userName, Bitmap imageBitmap) {
+    public void onViewHolderClick(View v, String userId, String userName) {
         Intent midiIntent = new Intent(context, MidiActivity.class);
         midiIntent.putExtra(Constant.INTENT_PARAM_USER_ID, userId);
         midiIntent.putExtra(Constant.INTENT_PARAM_USER_NAME, userName);
-        midiIntent.putExtra(Constant.INTENT_PARAM_USER_PROFILE_PICTURE, imageBitmap);
         context.startActivity(midiIntent);
     }
 }

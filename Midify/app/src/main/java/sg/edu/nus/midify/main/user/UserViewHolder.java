@@ -7,8 +7,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.pkmmte.view.CircularImageView;
-
+import sg.edu.nus.helper.http.RoundedCornersSmartImageView;
 import sg.edu.nus.midify.R;
 
 /**
@@ -18,7 +17,7 @@ public class UserViewHolder extends RecyclerView.ViewHolder implements View.OnCl
 
     private String userId;
     private String userName;
-    private ImageView profilePictureView;
+    private RoundedCornersSmartImageView profilePictureView;
     private TextView profileNameView;
     private ViewHolderOnClick delegate;
 
@@ -26,7 +25,8 @@ public class UserViewHolder extends RecyclerView.ViewHolder implements View.OnCl
         super(itemView);
         this.delegate = delegate;
 
-        profilePictureView = (CircularImageView) itemView.findViewById(R.id.profile_picture);
+        profilePictureView = (RoundedCornersSmartImageView) itemView.findViewById(R.id.profile_picture);
+        profilePictureView.setRadius(112);
         profileNameView = (TextView) itemView.findViewById(R.id.profile_name);
         itemView.setOnClickListener(this);
     }
@@ -39,7 +39,7 @@ public class UserViewHolder extends RecyclerView.ViewHolder implements View.OnCl
         this.userName = userName;
     }
 
-    public ImageView getProfilePictureView() {
+    public RoundedCornersSmartImageView getProfilePictureView() {
         return this.profilePictureView;
     }
 
@@ -49,11 +49,10 @@ public class UserViewHolder extends RecyclerView.ViewHolder implements View.OnCl
 
     @Override
     public void onClick(View v) {
-        Bitmap imageBitmap = ((BitmapDrawable) profilePictureView.getDrawable()).getBitmap();
-        delegate.onViewHolderClick(v, userId, userName, imageBitmap);
+        delegate.onViewHolderClick(v, userId, userName);
     }
 
-    public static interface ViewHolderOnClick {
-        public void onViewHolderClick(View v, String userId, String userName, Bitmap imageBitmap);
+    public interface ViewHolderOnClick {
+        void onViewHolderClick(View v, String userId, String userName);
     }
 }

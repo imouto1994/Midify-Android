@@ -10,7 +10,7 @@
     android:clickable="true"
     android:focusable="true">
 
-    <com.pkmmte.view.CircularImageView
+    <sg.edu.nus.helper.http.RoundedCornersSmartImageView
         android:id="@+id/profile_picture"
         android:layout_width="56dp"
         android:layout_height="56dp" />

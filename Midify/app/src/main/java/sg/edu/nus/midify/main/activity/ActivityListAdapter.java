@@ -56,8 +56,8 @@ public class ActivityListAdapter extends RecyclerView.Adapter<ActivityViewHolder
         holder.getActivityContentTextView().setText(activity.getContent());
 
         if (ConnectionHelper.checkNetworkConnection()) {
-            String profilePictureURL = ConnectionHelper.getSmallFacebookProfilePictureURL(activity.getUserId());
-            ConnectionHelper.downloadImage(holder.getProfilePictureView(), profilePictureURL);
+            String profilePictureURL = ConnectionHelper.getFacebookProfilePictureURL(activity.getUserId());
+            holder.getProfilePictureView().setImageUrl(profilePictureURL);
         }
     }
 

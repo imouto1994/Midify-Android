@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
+import com.loopj.android.image.SmartImageView;
 import com.melnykov.fab.FloatingActionButton;
 
 import sg.edu.nus.midify.R;
@@ -29,7 +30,7 @@ public class MidiViewHolder extends RecyclerView.ViewHolder implements View.OnCl
     private boolean isPaused;
 
     // UI Controls
-    private ImageView profilePictureView;
+    private SmartImageView profilePictureView;
     private TextView midiNameTextView;
     private TextView durationTextView;
     private TextView editedTimeTextView;
@@ -52,7 +53,7 @@ public class MidiViewHolder extends RecyclerView.ViewHolder implements View.OnCl
         this.currentSyncState = SyncState.HIDDEN_STATE;
 
         // Assign UI Controls
-        profilePictureView = (ImageView) itemView.findViewById(R.id.profile_picture);
+        profilePictureView = (SmartImageView) itemView.findViewById(R.id.profile_picture);
 
         midiNameTextView = (TextView) itemView.findViewById(R.id.midi_name);
         durationTextView = (TextView) itemView.findViewById(R.id.midi_duration);
@@ -141,7 +142,7 @@ public class MidiViewHolder extends RecyclerView.ViewHolder implements View.OnCl
         this.position = position;
     }
 
-    public ImageView getProfilePictureView() {
+    public SmartImageView getProfilePictureView() {
         return this.profilePictureView;
     }
 

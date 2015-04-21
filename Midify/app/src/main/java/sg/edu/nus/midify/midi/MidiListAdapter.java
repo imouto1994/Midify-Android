@@ -97,7 +97,7 @@ public class MidiListAdapter extends RecyclerView.Adapter<MidiViewHolder>
         updateSyncButton(position, holder);
         if (ConnectionHelper.checkNetworkConnection()) {
             String profilePictureURL = ConnectionHelper.getFacebookProfilePictureURL(midi.getOwnerId());
-            ConnectionHelper.downloadImage(holder.getProfilePictureView(), profilePictureURL, this);
+            holder.getProfilePictureView().setImageUrl(profilePictureURL);
         }
     }
 

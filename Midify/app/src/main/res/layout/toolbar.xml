@@ -11,7 +11,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <com.pkmmte.view.CircularImageView
+        <sg.edu.nus.helper.http.RoundedCornersSmartImageView
             android:id="@+id/toolbar_logo"
             android:layout_width="52dp"
             android:layout_height="52dp"

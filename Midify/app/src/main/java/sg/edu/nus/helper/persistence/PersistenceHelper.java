@@ -30,7 +30,7 @@ public class PersistenceHelper {
                 Context.MODE_PRIVATE);
         String serializedDataFromPreferences = midiPreferences.getString(Constant.MIDI_PREFS_KEY, null);
         if (serializedDataFromPreferences == null) {
-            return new ArrayList<MidiPOJO>();
+            return new ArrayList<>();
         }
         Type midiListType = new TypeToken<List<MidiPOJO>>(){}.getType();
         List<MidiPOJO> midiList = new Gson().fromJson(serializedDataFromPreferences, midiListType);

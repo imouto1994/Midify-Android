@@ -7,8 +7,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.pkmmte.view.CircularImageView;
-
+import sg.edu.nus.helper.http.RoundedCornersSmartImageView;
 import sg.edu.nus.midify.R;
 
 /**
@@ -18,7 +17,7 @@ public class ActivityViewHolder extends RecyclerView.ViewHolder implements View.
 
     private String userId;
     private String userName;
-    private ImageView profilePictureView;
+    private RoundedCornersSmartImageView profilePictureView;
     private TextView activityContentTextView;
     private ViewHolderOnClick delegate;
 
@@ -26,7 +25,8 @@ public class ActivityViewHolder extends RecyclerView.ViewHolder implements View.
         super(itemView);
         this.delegate = delegate;
 
-        profilePictureView = (CircularImageView) itemView.findViewById(R.id.profile_picture);
+        profilePictureView = (RoundedCornersSmartImageView) itemView.findViewById(R.id.profile_picture);
+        profilePictureView.setRadius(112);
         activityContentTextView = (TextView) itemView.findViewById(R.id.activity_content);
         itemView.setOnClickListener(this);
     }
@@ -39,7 +39,7 @@ public class ActivityViewHolder extends RecyclerView.ViewHolder implements View.
         this.userName = userName;
     }
 
-    public ImageView getProfilePictureView() {
+    public RoundedCornersSmartImageView getProfilePictureView() {
         return this.profilePictureView;
     }
 

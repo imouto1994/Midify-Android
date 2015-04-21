@@ -15,9 +15,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.TextView;
 
-import com.pkmmte.view.CircularImageView;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,6 +28,7 @@ import sg.edu.nus.POJOs.MidiPOJO;
 import sg.edu.nus.helper.Constant;
 import sg.edu.nus.helper.http.ConnectionHelper;
 import sg.edu.nus.helper.http.MidifyRestClient;
+import sg.edu.nus.helper.http.RoundedCornersSmartImageView;
 import sg.edu.nus.helper.persistence.PersistenceHelper;;
 import sg.edu.nus.midify.R;
 
@@ -72,8 +70,10 @@ public class MidiActivity extends ActionBarActivity implements SwipeRefreshLayou
         TextView subtitleTextView = (TextView) toolbar.findViewById(R.id.toolbar_subtitle);
         subtitleTextView.setText("Fetching...");
 
-        CircularImageView logo = (CircularImageView) toolbar.findViewById(R.id.toolbar_logo);
-        logo.setImageBitmap((Bitmap) intent.getParcelableExtra(Constant.INTENT_PARAM_USER_PROFILE_PICTURE));
+        RoundedCornersSmartImageView logo = (RoundedCornersSmartImageView) toolbar.findViewById(R.id.toolbar_logo);
+        String profilePictureUrl = ConnectionHelper.getFacebookProfilePictureURL(userId);
+        logo.setRadius(104);
+        logo.setImageUrl(profilePictureUrl);
 
         // Initialize refresh layout
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
