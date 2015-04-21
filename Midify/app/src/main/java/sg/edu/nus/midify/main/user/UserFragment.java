@@ -23,7 +23,7 @@ import sg.edu.nus.helper.Constant;
 import sg.edu.nus.helper.http.ConnectionHelper;
 import sg.edu.nus.helper.http.MidifyRestClient;
 import sg.edu.nus.helper.persistence.PersistenceHelper;
-import sg.edu.nus.helper.recyclerview.DividerItemDecoration;
+import sg.edu.nus.helper.recyclerview.SectionDividerItemDecoration;
 import sg.edu.nus.helper.recyclerview.SectionedListAdapter;
 import sg.edu.nus.helper.recyclerview.SectionedListAdapter.Section;
 import sg.edu.nus.midify.R;
@@ -80,7 +80,7 @@ public class UserFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         userList.setLayoutManager(llm);
         // Configure item decoration
         RecyclerView.ItemDecoration itemDecoration =
-                new DividerItemDecoration(this.getActivity(), DividerItemDecoration.VERTICAL_LIST);
+                new SectionDividerItemDecoration(this.getActivity(), SectionDividerItemDecoration.VERTICAL_LIST);
         userList.addItemDecoration(itemDecoration);
         // Configure item animation
         userList.setItemAnimator(new DefaultItemAnimator());

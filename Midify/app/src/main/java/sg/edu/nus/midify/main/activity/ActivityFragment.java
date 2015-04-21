@@ -20,15 +20,13 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 import sg.edu.nus.POJOs.ActivityPOJO;
-import sg.edu.nus.POJOs.UserPOJO;
 import sg.edu.nus.helper.Constant;
 import sg.edu.nus.helper.http.ConnectionHelper;
 import sg.edu.nus.helper.http.MidifyRestClient;
 import sg.edu.nus.helper.persistence.PersistenceHelper;
 import sg.edu.nus.helper.recyclerview.DividerItemDecoration;
-import sg.edu.nus.helper.recyclerview.SectionedListAdapter;
+import sg.edu.nus.helper.recyclerview.SectionDividerItemDecoration;
 import sg.edu.nus.midify.R;
-import sg.edu.nus.midify.main.user.UserListAdapter;
 
 
 public class ActivityFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -82,6 +80,10 @@ public class ActivityFragment extends Fragment implements SwipeRefreshLayout.OnR
         // Configure layout manager
         LinearLayoutManager llm = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         activityList.setLayoutManager(llm);
+        // Configure item decoration
+        RecyclerView.ItemDecoration itemDecoration =
+                new DividerItemDecoration(this.getActivity(), SectionDividerItemDecoration.VERTICAL_LIST);
+        activityList.addItemDecoration(itemDecoration);
         // Configure item animation
         activityList.setItemAnimator(new DefaultItemAnimator());
     }

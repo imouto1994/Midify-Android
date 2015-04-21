@@ -84,7 +84,6 @@ public class MainActivity extends ActionBarActivity {
         FragmentManager fm = getSupportFragmentManager();
         LoginFragment loginFragment = (LoginFragment) fm.findFragmentById(R.id.login_fragment);
         fragments[LOGIN_FRAGMENT_INDEX] = loginFragment;
-
         FragmentTransaction transaction = fm.beginTransaction();
         for (int i = 0; i < fragments.length; i++) {
             if (fragments[i] != null) {
@@ -92,7 +91,7 @@ public class MainActivity extends ActionBarActivity {
             }
         }
         transaction.commit();
-
+        System.out.println("TEST");
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
         viewPager.setAdapter(new MainActivityFragmentPagerAdapter(getSupportFragmentManager(),

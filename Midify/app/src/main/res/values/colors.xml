@@ -1,7 +1,7 @@
 <resources>
     <!-- Main Color -->
-    <color name="ColorPrimary">#E62117</color>
-    <color name="ColorPrimaryDark">#C31C13</color>
+    <color name="ColorPrimary">#F44336</color>
+    <color name="ColorPrimaryDark">#B71C1C</color>
     <color name="ColorAccent">#FF5252</color>
     <color name="White">#fff</color>
     <color name="Dark">#000</color>

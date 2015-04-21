@@ -30,6 +30,7 @@
             android:name=".main.MainActivity"
             android:configChanges="orientation"
             android:label="@string/label_main_activity"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

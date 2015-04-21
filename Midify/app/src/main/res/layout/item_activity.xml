@@ -3,7 +3,7 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:background="?android:attr/selectableItemBackground"
-    android:layout_height="?attr/listPreferredItemHeight"
+    android:layout_height="72dp"
     android:gravity="center_vertical"
     android:paddingLeft="8dp"
     android:paddingRight="8dp"
@@ -12,14 +12,15 @@
 
     <com.pkmmte.view.CircularImageView
         android:id="@+id/profile_picture"
-        android:layout_width="48dp"
-        android:layout_height="48dp" />
+        android:layout_width="56dp"
+        android:layout_height="56dp" />
 
     <TextView
         android:id="@+id/activity_content"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:layout_margin="8dp"/>
+        android:layout_margin="8dp"
+        android:textSize="14sp"/>
 
 </LinearLayout>
