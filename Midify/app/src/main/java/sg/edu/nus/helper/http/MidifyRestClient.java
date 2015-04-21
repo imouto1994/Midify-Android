@@ -23,7 +23,7 @@ import sg.edu.nus.helper.Constant;
 
 public class MidifyRestClient {
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-    private static final String IP = "172.28.181.137";
+    private static final String IP = "128.199.205.214";
     private static final String PORT = "9000";
     private static final String BASE_URL = "http://" + IP + ":" + PORT + "/api";
 
