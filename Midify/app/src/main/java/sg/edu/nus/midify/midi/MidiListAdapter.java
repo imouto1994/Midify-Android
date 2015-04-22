@@ -425,8 +425,8 @@ public class MidiListAdapter extends RecyclerView.Adapter<MidiViewHolder>
         imageView.setColorFilter(Color.argb(100, 0, 0, 0));
     }
 
-    public static interface MidiListDelegate {
-        public Context getContext();
+    public interface MidiListDelegate {
+        Context getContext();
     }
 
 

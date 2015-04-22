@@ -91,7 +91,6 @@ public class MainActivity extends ActionBarActivity {
             }
         }
         transaction.commit();
-        System.out.println("TEST");
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
         viewPager.setAdapter(new MainActivityFragmentPagerAdapter(getSupportFragmentManager(),
@@ -235,8 +234,7 @@ public class MainActivity extends ActionBarActivity {
                         ActivityFragment activityFragment = (ActivityFragment) fragments[ACTIVITY_FRAGMENT_INDEX];
                         activityFragment.refreshList();
 
-                        MidifyRestClient.instance().authenticate(session.getAccessToken(),
-                                user.getId(),
+                        MidifyRestClient.instance().authenticate(session.getAccessToken(), user.getId(),
                                 new Callback<UserPOJO>() {
                                     @Override
                                     public void success(UserPOJO userPOJO, retrofit.client.Response response) {
