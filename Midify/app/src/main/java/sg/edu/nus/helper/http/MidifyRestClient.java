@@ -20,10 +20,12 @@ import sg.edu.nus.POJOs.ActivityPOJO;
 import sg.edu.nus.POJOs.MidiPOJO;
 import sg.edu.nus.POJOs.UserPOJO;
 import sg.edu.nus.helper.Constant;
+import sg.edu.nus.helper.persistence.PersistenceHelper;
+import sg.edu.nus.midify.MidifyApp;
 
 public class MidifyRestClient {
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-    private static final String IP = "172.23.118.209";
+    private static final String IP = "128.199.205.214";
     private static final String PORT = "9000";
     private static final String BASE_URL = "http://" + IP + ":" + PORT + "/api";
 
@@ -113,7 +115,10 @@ public class MidifyRestClient {
 
     public void checkAccessToken() {
         if (this.accessToken == null) {
-            throw new NullPointerException("The access token is null");
+            this.accessToken = PersistenceHelper.getFacebookToken(MidifyApp.getContext());
+            if (this.accessToken == null) {
+                throw new NullPointerException("The access token is null");
+            }
         }
     }
 }

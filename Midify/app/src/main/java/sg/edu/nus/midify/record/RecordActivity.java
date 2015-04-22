@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
@@ -128,6 +129,7 @@ public class RecordActivity extends Activity {
                 //the selected audio.
                 Uri uri = data.getData();
                 File targetFile = new File(uri.getPath());
+                audioRecorder.setDuration(15 * 1000);
                 fetchUserInput(targetFile.getAbsolutePath());
             }
         }

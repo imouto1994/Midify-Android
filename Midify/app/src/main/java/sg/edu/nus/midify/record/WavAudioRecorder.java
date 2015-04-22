@@ -367,4 +367,9 @@ public class WavAudioRecorder {
     public long getDuration() {
         return (endRecordingTime - startRecordingTime) / 1000;
     }
+
+    public void setDuration(long duration) {
+        startRecordingTime = 0;
+        endRecordingTime = duration;
+    }
 }
