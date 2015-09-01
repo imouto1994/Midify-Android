@@ -49,11 +49,10 @@ public class ActivityViewHolder extends RecyclerView.ViewHolder implements View.
 
     @Override
     public void onClick(View v) {
-        Bitmap imageBitmap = ((BitmapDrawable) profilePictureView.getDrawable()).getBitmap();
-        delegate.onViewHolderClick(v, userId, userName, imageBitmap);
+        delegate.onViewHolderClick(v, userId, userName);
     }
 
     public interface ViewHolderOnClick {
-        void onViewHolderClick(View v, String userId, String userName, Bitmap imageBitmap);
+        void onViewHolderClick(View v, String userId, String userName);
     }
 }

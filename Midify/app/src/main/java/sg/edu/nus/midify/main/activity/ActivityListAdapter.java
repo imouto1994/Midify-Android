@@ -73,11 +73,10 @@ public class ActivityListAdapter extends RecyclerView.Adapter<ActivityViewHolder
     }
 
     @Override
-    public void onViewHolderClick(View v, String userId, String userName, Bitmap imageBitmap) {
+    public void onViewHolderClick(View v, String userId, String userName) {
         Intent midiIntent = new Intent(context, MidiActivity.class);
         midiIntent.putExtra(Constant.INTENT_PARAM_USER_ID, userId);
         midiIntent.putExtra(Constant.INTENT_PARAM_USER_NAME, userName);
-        midiIntent.putExtra(Constant.INTENT_PARAM_USER_PROFILE_PICTURE, imageBitmap);
         context.startActivity(midiIntent);
     }
 }
